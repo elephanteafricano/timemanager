@@ -1,0 +1,49 @@
+name: timemanager
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: timemanager-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: timemanager
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d timemanager"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: timemanager-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://admin:secret@postgres:5432/timemanager
+      DB_SYNC: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Uncomment to expose backend directly (optional)
+    # ports:
+    #   - "3000:3000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: timemanager-nginx
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+volumes:
+  pgdata:
