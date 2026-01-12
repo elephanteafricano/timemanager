@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const { Clock } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
 
-function computeTotalHours(records) {
+function _computeTotalHours(records) {
   const sorted = [...records].sort((a, b) => new Date(a.time) - new Date(b.time));
   let totalMs = 0;
   
@@ -23,7 +23,7 @@ const toggleClock = asyncHandler(async (req, res) => {
   const requesterId = req.user.id;
   const requesterRole = req.user.role;
   
-  if (!user_id) throw new AppError('user_id required', 400);
+  if (!user_id) {throw new AppError('user_id required', 400);}
   
   // Employees can only clock for themselves
   if (requesterRole !== 'manager' && parseInt(user_id) !== requesterId) {
@@ -59,13 +59,13 @@ const getUserClocks = asyncHandler(async (req, res) => {
   // Check if user exists
   const { User } = require('../models');
   const user = await User.findByPk(userId);
-  if (!user) throw new AppError('User not found', 404);
+  if (!user) {throw new AppError('User not found', 404);}
   
   const where = { user_id: userId };
   if (start_date || end_date) {
     where.time = {};
-    if (start_date) where.time[Op.gte] = new Date(start_date);
-    if (end_date) where.time[Op.lte] = new Date(end_date);
+    if (start_date) {where.time[Op.gte] = new Date(start_date);}
+    if (end_date) {where.time[Op.lte] = new Date(end_date);}
   }
   
   const clocks = await Clock.findAll({ where, order: [['time', 'ASC']] });

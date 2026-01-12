@@ -27,13 +27,33 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://admin:secret@postgres:5432/timemanager
-      DB_SYNC: "false"
+      DB_SYNC: "true"
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
     depends_on:
       postgres:
         condition: service_healthy
-    # Uncomment to expose backend directly (optional)
-    # ports:
-    #   - "3000:3000"
+
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: timemanager-backend-dev
+    profiles: ["dev"]
+    command: npm run dev
+    volumes:
+      - ./backend/src:/app/src:cached
+      - ./backend/tests:/app/tests:cached
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://admin:secret@postgres:5432/timemanager
+      DB_SYNC: "true"
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
 
   nginx:
     image: nginx:1.27-alpine
@@ -47,3 +67,4 @@ services:
 
 volumes:
   pgdata:
+

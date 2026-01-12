@@ -2,12 +2,16 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger.config');
 const router = require('./routes');
 const { initDatabase } = require('./config/database');
 const { AppError } = require('./utils/errorHandler');
+const { validateEnv } = require('./utils/env');
 require('./models');
 
 dotenv.config();
+validateEnv();
 
 const app = express();
 
@@ -25,6 +29,14 @@ if (process.env.NODE_ENV === 'development') {
 
 // Routes
 app.use('/api', router);
+
+// Swagger API documentation
+app.use('/api/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
+  customCss: '.topbar { display: none }',
+}));
 
 // 404 Handler
 app.use((req, res, next) => {

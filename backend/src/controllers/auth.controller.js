@@ -16,7 +16,7 @@ function signTokens(payload) {
 }
 
 function sanitize(user) {
-  const { password_hash, ...safe } = user.toJSON();
+  const { _password_hash, ...safe } = user.toJSON();
   return safe;
 }
 
@@ -24,19 +24,19 @@ const register = asyncHandler(async (req, res) => {
   const { username, email, password, first_name, last_name, phone_number, role = 'employee' } = req.body;
   
   const { valid, missing } = validateRequired(req.body, ['username', 'email', 'password', 'first_name', 'last_name']);
-  if (!valid) throw new AppError(`Missing: ${missing.join(', ')}`, 400);
+  if (!valid) {throw new AppError(`Missing: ${missing.join(', ')}`, 400);}
   
-  if (!validateEmail(email)) throw new AppError('Invalid email format', 400);
+  if (!validateEmail(email)) {throw new AppError('Invalid email format', 400);}
   if (!validatePassword(password)) {
     throw new AppError('Password: 8+ chars, 1 uppercase, 1 number', 400);
   }
   
   // Check for duplicate username or email
   const existingEmail = await User.findOne({ where: { email } });
-  if (existingEmail) throw new AppError('Email already registered', 400);
+  if (existingEmail) {throw new AppError('Email already registered', 400);}
   
   const existingUsername = await User.findOne({ where: { username } });
-  if (existingUsername) throw new AppError('Username already taken', 400);
+  if (existingUsername) {throw new AppError('Username already taken', 400);}
   
   const hash = await bcrypt.hash(password, 10);
   
@@ -63,7 +63,7 @@ const register = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   
-  if (!username || !password) throw new AppError('Username/email and password required', 400);
+  if (!username || !password) {throw new AppError('Username/email and password required', 400);}
   
   // Allow login with username or email
   const user = await User.findOne({ 
@@ -74,10 +74,10 @@ const login = asyncHandler(async (req, res) => {
       ]
     }
   });
-  if (!user) throw new AppError('Invalid credentials', 401);
+  if (!user) {throw new AppError('Invalid credentials', 401);}
   
   const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) throw new AppError('Invalid credentials', 401);
+  if (!ok) {throw new AppError('Invalid credentials', 401);}
   
   const tokens = signTokens({ sub: user.id, role: user.role });
   res.json({ 
@@ -89,19 +89,19 @@ const login = asyncHandler(async (req, res) => {
 
 const refresh = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
-  if (!refreshToken) throw new AppError('Refresh token required', 400);
+  if (!refreshToken) {throw new AppError('Refresh token required', 400);}
   
   let decoded;
   try {
     decoded = jwt.verify(refreshToken, JWT_SECRET);
-  } catch (error) {
+  } catch {
     throw new AppError('Invalid refresh token', 401);
   }
   
-  if (decoded.type !== 'refresh') throw new AppError('Invalid refresh token', 400);
+  if (decoded.type !== 'refresh') {throw new AppError('Invalid refresh token', 400);}
   
   const user = await User.findByPk(decoded.sub);
-  if (!user) throw new AppError('User not found', 401);
+  if (!user) {throw new AppError('User not found', 401);}
   
   const tokens = signTokens({ sub: user.id, role: user.role });
   res.json({ 

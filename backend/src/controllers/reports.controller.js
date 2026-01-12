@@ -1,6 +1,6 @@
 // Reports Controller (KPIs)
 const { Op } = require('sequelize');
-const { Clock, User, Team } = require('../models');
+const { Clock, User, _Team } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
 
 function computeTotalHours(records) {
@@ -19,11 +19,11 @@ function computeTotalHours(records) {
 }
 
 const getReports = asyncHandler(async (req, res) => {
-  const { userId, team_id, startDate, endDate } = req.query;
+  const { userId, _team_id, startDate, endDate } = req.query;
   const requesterId = req.user.id;
   const requesterRole = req.user.role;
   
-  if (!userId) throw new AppError('userId required in query', 400);
+  if (!userId) {throw new AppError('userId required in query', 400);}
   
   // Employees can only view their own reports
   if (requesterRole !== 'manager' && parseInt(userId) !== requesterId) {
@@ -32,14 +32,14 @@ const getReports = asyncHandler(async (req, res) => {
   
   // Check if user exists
   const user = await User.findByPk(userId);
-  if (!user) throw new AppError('User not found', 404);
+  if (!user) {throw new AppError('User not found', 404);}
   
   const whereClocks = { user_id: userId };
   
   if (startDate || endDate) {
     whereClocks.time = {};
-    if (startDate) whereClocks.time[Op.gte] = new Date(startDate);
-    if (endDate) whereClocks.time[Op.lte] = new Date(endDate);
+    if (startDate) {whereClocks.time[Op.gte] = new Date(startDate);}
+    if (endDate) {whereClocks.time[Op.lte] = new Date(endDate);}
   }
   
   const clocks = await Clock.findAll({ where: whereClocks, order: [['time', 'ASC']] });

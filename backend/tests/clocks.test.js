@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/index');
-const { sequelize, setupTestDB, teardownTestDB } = require('./setup');
+const { _sequelize, setupTestDB, teardownTestDB } = require('./setup');
 const { User, Clock } = require('../src/models');
 
 describe('Clocks Endpoints', () => {

@@ -4,7 +4,7 @@ const { User } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
 
 function sanitize(user) {
-  const { password_hash, ...safe } = user.toJSON();
+  const { _password_hash, ...safe } = user.toJSON();
   return safe;
 }
 
@@ -24,7 +24,7 @@ const getUser = asyncHandler(async (req, res) => {
   }
   
   const user = await User.findByPk(id, { attributes: { exclude: ['password_hash'] } });
-  if (!user) throw new AppError('User not found', 404);
+  if (!user) {throw new AppError('User not found', 404);}
   
   res.json(user);
 });
@@ -37,7 +37,7 @@ const createUser = asyncHandler(async (req, res) => {
   }
   
   const exists = await User.findOne({ where: { email } });
-  if (exists) throw new AppError('Email already used', 409);
+  if (exists) {throw new AppError('Email already used', 409);}
   
   const hash = await bcrypt.hash(password, 10);
   const user = await User.create({
@@ -58,7 +58,7 @@ const updateUser = asyncHandler(async (req, res) => {
   }
   
   const user = await User.findByPk(id);
-  if (!user) throw new AppError('User not found', 404);
+  if (!user) {throw new AppError('User not found', 404);}
   
   const { password, role, ...rest } = req.body;
   
@@ -82,7 +82,7 @@ const updateUser = asyncHandler(async (req, res) => {
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await User.findByPk(id);
-  if (!user) throw new AppError('User not found', 404);
+  if (!user) {throw new AppError('User not found', 404);}
   
   await user.destroy();
   res.json({ message: 'User deleted successfully' });
