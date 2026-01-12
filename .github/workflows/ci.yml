@@ -36,6 +36,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://admin:secret@localhost:5432/timemanager
+      JWT_SECRET: test_jwt_secret_key_for_ci
       NODE_ENV: test
 
     steps:
@@ -50,7 +51,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Wait for Postgres to be ready
         run: |
