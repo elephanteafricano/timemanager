@@ -5,7 +5,7 @@ WORKDIR /app
 # Install dependencies in a separate layer
 FROM base AS deps
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --legacy-peer-deps
 
 # Final runtime image
 FROM node:20-alpine AS runner
