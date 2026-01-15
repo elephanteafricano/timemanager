@@ -55,10 +55,13 @@ curl http://localhost:3000/api/health
 ### Environment Variables
 
 Required (for production/Docker):
-- `JWT_SECRET`: Secret key for JWT signing. Change in production!
+- `JWT_SECRET`: Secret key for access tokens (min 32 chars). Change in production!
+- `JWT_REFRESH_SECRET`: Secret key for refresh tokens (min 32 chars, distinct recommended)
 - `DATABASE_URL`: PostgreSQL connection string
 
 Optional (with defaults):
+- `ACCESS_TTL`: Access token lifetime (default: `1h`)
+- `REFRESH_TTL`: Refresh token lifetime (default: `7d`)
 - `NODE_ENV`: `development`, `test`, or `production` (default: `development`)
 - `PORT`: Server port (default: `3000`)
 - `DB_SYNC`: Auto-sync database schema on startup (default: `false`)
@@ -71,6 +74,9 @@ NODE_ENV=development
 PORT=3000
 DATABASE_URL=postgresql://admin:secret@localhost:5432/timemanager
 JWT_SECRET=my_super_secret_key_change_in_production
+JWT_REFRESH_SECRET=my_super_refresh_secret_change_in_production
+ACCESS_TTL=1h
+REFRESH_TTL=7d
 DB_SYNC=false
 ```
 

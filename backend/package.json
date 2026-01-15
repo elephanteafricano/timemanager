@@ -8,9 +8,9 @@
     "dev": "nodemon src/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "cross-env NODE_ENV=test jest --runInBand",
-    "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
-    "test:coverage": "cross-env NODE_ENV=test jest --coverage --runInBand"
+    "test": "cross-env NODE_ENV=test JWT_SECRET=test_jwt_secret_key_for_tests_32chars!! JWT_REFRESH_SECRET=test_refresh_secret_key_for_tests_32!! jest --runInBand",
+    "test:watch": "cross-env NODE_ENV=test JWT_SECRET=test_jwt_secret_key_for_tests_32chars!! JWT_REFRESH_SECRET=test_refresh_secret_key_for_tests_32!! jest --watch --runInBand",
+    "test:coverage": "cross-env NODE_ENV=test JWT_SECRET=test_jwt_secret_key_for_tests_32chars!! JWT_REFRESH_SECRET=test_refresh_secret_key_for_tests_32!! jest --coverage --runInBand"
   },
   "keywords": [],
   "author": "",

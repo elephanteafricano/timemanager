@@ -5,13 +5,14 @@ const { User } = require('../models');
 const { validateEmail, validatePassword, validateRequired } = require('../utils/validators');
 const { AppError, asyncHandler } = require('../utils/errorHandler');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
-const ACCESS_TTL = '1h';
-const REFRESH_TTL = '7d';
+const JWT_ACCESS_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'change_me_in_production';
+const ACCESS_TTL = process.env.ACCESS_TTL || '1h';
+const REFRESH_TTL = process.env.REFRESH_TTL || '7d';
 
 function signTokens(payload) {
-  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TTL });
-  const refreshToken = jwt.sign({ sub: payload.sub, type: 'refresh' }, JWT_SECRET, { expiresIn: REFRESH_TTL });
+  const accessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: ACCESS_TTL });
+  const refreshToken = jwt.sign({ sub: payload.sub, type: 'refresh' }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TTL });
   return { accessToken, refreshToken };
 }
 
@@ -93,7 +94,7 @@ const refresh = asyncHandler(async (req, res) => {
   
   let decoded;
   try {
-    decoded = jwt.verify(refreshToken, JWT_SECRET);
+    decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
   } catch {
     throw new AppError('Invalid refresh token', 401);
   }
