@@ -10,6 +10,7 @@ const { initDatabase } = require('./config/database');
 const { AppError } = require('./utils/errorHandler');
 const { validateEnv } = require('./utils/env');
 const logger = require('./utils/logger');
+const { globalLimiter } = require('./middleware/rateLimiter.middleware');
 require('./models');
 
 dotenv.config();
@@ -17,9 +18,15 @@ validateEnv();
 
 const app = express();
 
+// Trust proxy (for rate limiting behind Nginx/load balancer)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Apply global rate limiter
+app.use(globalLimiter);
 
 // Structured logging with request correlation IDs
 app.use(pinoHttp({

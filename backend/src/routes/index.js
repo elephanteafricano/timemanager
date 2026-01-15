@@ -5,10 +5,11 @@ const usersRoutes = require('./users.routes');
 const teamsRoutes = require('./teams.routes');
 const clocksRoutes = require('./clocks.routes');
 const reportsRoutes = require('./reports.routes');
+const { authLimiter } = require('../middleware/rateLimiter.middleware');
 
 const router = Router();
 
-router.use('/auth', authRoutes);
+router.use('/auth', authLimiter, authRoutes);
 router.use('/users', usersRoutes);
 router.use('/teams', teamsRoutes);
 router.use('/clocks', clocksRoutes);

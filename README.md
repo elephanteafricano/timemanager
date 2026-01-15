@@ -198,6 +198,38 @@ LOG_LEVEL=warn npm start       # Only warnings and errors
 {"level":30,"time":1705317095000,"env":"production","req":{"id":"uuid-here","method":"GET","url":"/api/health"},"res":{"statusCode":200,"headers":{"x-request-id":"uuid-here"}},"responseTime":2,"msg":"GET /health 200"}
 ```
 
+## API Rate Limiting
+
+The backend enforces rate limits to prevent abuse and ensure fair usage:
+
+### Limits
+- **Global**: 100 requests per 15 minutes per IP (all endpoints)
+- **Auth endpoints** (`/api/auth/*`): 10 requests per 15 minutes per IP (stricter for login/register/refresh)
+- **Test environment**: Rate limiting automatically disabled
+
+### Rate Limit Headers
+Responses include standard rate limit headers:
+```
+RateLimit-Limit: 100
+RateLimit-Remaining: 97
+RateLimit-Reset: 1705317995
+```
+
+### 429 Response
+When rate limit exceeded:
+```json
+{
+  "error": {
+    "status": 429,
+    "message": "Too many requests, please try again later.",
+    "requestId": "uuid-here"
+  }
+}
+```
+
+### Behind Nginx/Load Balancer
+The server trusts proxy headers (`app.set('trust proxy', 1)`) for accurate IP identification in Docker/cloud environments.
+
 ## Docker & Compose
 
 ### Production Mode
