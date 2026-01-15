@@ -62,6 +62,7 @@ Optional (with defaults):
 - `NODE_ENV`: `development`, `test`, or `production` (default: `development`)
 - `PORT`: Server port (default: `3000`)
 - `DB_SYNC`: Auto-sync database schema on startup (default: `false`)
+- `LOG_LEVEL`: Logging level - `trace`, `debug`, `info`, `warn`, `error`, `fatal` (default: `debug` in dev, `info` in prod)
 
 ### .env Example
 
@@ -141,6 +142,62 @@ npm run lint:fix
 - CodeQL security scanning enabled
 - ESLint checks enforced
 
+## Structured Logging & Request Tracing
+
+The backend uses **Pino** for structured JSON logging with automatic request correlation:
+
+### Features
+- **JSON logs** in production for machine-readable output
+- **Pretty-printed logs** in development with timestamps and colors
+- **Request correlation**: Every request gets a unique `X-Request-ID` (auto-generated or passed in header)
+- **Automatic log levels**: INFO for 2xx, WARN for 4xx, ERROR for 5xx
+- **Sensitive field redaction**: Passwords, tokens, and auth headers are redacted as `[REDACTED]`
+
+### Request ID Propagation
+```bash
+# Client sends custom request ID
+curl -H "X-Request-ID: my-custom-id" http://localhost:3000/api/health
+
+# Response includes the same ID in header
+X-Request-ID: my-custom-id
+
+# All logs for this request include: "req": {"id": "my-custom-id", ...}
+```
+
+### Log Levels
+Control verbosity with `LOG_LEVEL` env var:
+```bash
+LOG_LEVEL=debug npm run dev    # Debug SQL queries + full request/response
+LOG_LEVEL=info npm start       # Production: only INFO and above
+LOG_LEVEL=warn npm start       # Only warnings and errors
+```
+
+### Example Log Output (Development)
+```
+[10:11:35 UTC] WARN: POST /api/auth/login 400
+  env: "development"
+  req: {
+    "id": "6a01e2d6-4300-4d4d-8732-fbe47610ea30",
+    "method": "POST",
+    "url": "/api/auth/login",
+    "headers": {
+      "authorization": "[REDACTED]"
+    }
+  }
+  res: {
+    "statusCode": 400,
+    "headers": {
+      "x-request-id": "6a01e2d6-4300-4d4d-8732-fbe47610ea30"
+    }
+  }
+  responseTime: 3
+```
+
+### Example Log Output (Production)
+```json
+{"level":30,"time":1705317095000,"env":"production","req":{"id":"uuid-here","method":"GET","url":"/api/health"},"res":{"statusCode":200,"headers":{"x-request-id":"uuid-here"}},"responseTime":2,"msg":"GET /health 200"}
+```
+
 ## Docker & Compose
 
 ### Production Mode
@@ -199,6 +256,7 @@ backend/
 - **Auth**: JWT (jsonwebtoken) + bcrypt
 - **Testing**: Jest + Supertest
 - **Linting**: ESLint with strict rules
+- **Logging**: Pino (structured JSON logging with request correlation)
 - **Docs**: Swagger/OpenAPI (swagger-ui-express)
 - **DevOps**: Docker, Docker Compose, GitHub Actions
 

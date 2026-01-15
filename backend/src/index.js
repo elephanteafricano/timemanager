@@ -2,12 +2,14 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const pinoHttp = require('pino-http');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger.config');
 const router = require('./routes');
 const { initDatabase } = require('./config/database');
 const { AppError } = require('./utils/errorHandler');
 const { validateEnv } = require('./utils/env');
+const logger = require('./utils/logger');
 require('./models');
 
 dotenv.config();
@@ -19,13 +21,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Request logging in development
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, _res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-    next();
-  });
-}
+// Structured logging with request correlation IDs
+app.use(pinoHttp({
+  logger,
+  genReqId: (req) => req.headers['x-request-id'] || require('crypto').randomUUID(),
+  customLogLevel: (_req, res) => {
+    if (res.statusCode >= 500) {return 'error';}
+    if (res.statusCode >= 400) {return 'warn';}
+    return 'info';
+  },
+  customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
+  customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
+}));
+
+// Attach request ID to response headers
+app.use((req, res, next) => {
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
 
 // Routes
 app.use('/api', router);
@@ -44,19 +57,24 @@ app.use((req, res, next) => {
 });
 
 // Global Error Handler
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   const status = err.status || err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
   
-  // Log errors in development
-  if (process.env.NODE_ENV !== 'production') {
-    console.error(`[ERROR ${status}]`, message, process.env.NODE_ENV === 'development' ? err.stack : '');
-  }
+  // Structured error logging
+  req.log.error({
+    err,
+    status,
+    requestId: req.id,
+    path: req.path,
+    method: req.method,
+  }, message);
   
   res.status(status).json({
     error: {
       status,
       message,
+      requestId: req.id,
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });
@@ -71,15 +89,18 @@ async function start() {
   }
   
   app.listen(PORT, () => {
-    console.log(`\n✅ Server running on http://localhost:${PORT}`);
-    console.log(`📍 Health: http://localhost:${PORT}/api/health`);
-    console.log(`📚 Environment: ${process.env.NODE_ENV}\n`);
+    logger.info({
+      port: PORT,
+      env: process.env.NODE_ENV,
+      health: `http://localhost:${PORT}/api/health`,
+      swagger: `http://localhost:${PORT}/api/swagger`,
+    }, 'Server started successfully');
   });
 }
 
 if (require.main === module) {
   start().catch((err) => {
-    console.error('❌ Failed to start server:', err.message);
+    logger.fatal({ err }, 'Failed to start server');
     process.exit(1);
   });
 }
