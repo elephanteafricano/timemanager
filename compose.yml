@@ -28,7 +28,8 @@ services:
       PORT: 3000
       DATABASE_URL: postgresql://admin:secret@postgres:5432/timemanager
       DB_SYNC: "true"
-      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+      JWT_SECRET: ${JWT_SECRET:-production_jwt_secret_key_change_me_now}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-production_jwt_refresh_secret_change_me}
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,7 +49,8 @@ services:
       PORT: 3000
       DATABASE_URL: postgresql://admin:secret@postgres:5432/timemanager
       DB_SYNC: "true"
-      JWT_SECRET: ${JWT_SECRET:-dev_secret_key}
+      JWT_SECRET: ${JWT_SECRET:-development_jwt_secret_key_minvalue32}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-development_jwt_refresh_secret_minvalue32}
     depends_on:
       postgres:
         condition: service_healthy
