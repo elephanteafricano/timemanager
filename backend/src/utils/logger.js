@@ -26,7 +26,7 @@ try {
       env: process.env.NODE_ENV,
     },
   });
-} catch (err) {
+} catch {
   // Fallback to basic logger if pino-pretty fails
   logger = pino({
     level: LOG_LEVEL,

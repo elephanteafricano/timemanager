@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 const { sequelize } = require('../src/config/database');
@@ -103,8 +104,8 @@ const { User, Team } = require('../src/models');
     console.log('\nDatabase seeded successfully!');
     console.log('\nSummary:');
     console.log(`   - 2 Managers: ${manager1.username}, ${manager2.username}`);
-    console.log(`   - 4 Employees: employee1, employee2, employee3, employee4`);
-    console.log(`   - 2 Teams: "${team1.name}", "${team2.name}"`);
+    console.log('   - 4 Employees: employee1, employee2, employee3, employee4');
+    console.log(`   - 2 Teams: '${team1.name}', '${team2.name}'`);
     console.log('\nPasswords:');
     console.log('   - manager1: manager1pass');
     console.log('   - manager2: manager2pass');

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Test setup - sets NODE_ENV to test before any imports
 process.env.NODE_ENV = 'test';
 

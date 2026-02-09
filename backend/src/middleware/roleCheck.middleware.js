@@ -4,7 +4,6 @@
 // Frontend checks improve UX by preventing unauthorized navigation attempts.
 // Backend checks are essential for API security - client-side checks can be bypassed.
 const { AppError } = require('../utils/errorHandler');
-const { VALID_ROLES } = require('../config/roles');
 
 const roleCheck = (allowedRoles = []) => {
   return (req, res, next) => {

@@ -137,10 +137,10 @@ describe('Reports Endpoints', () => {
 
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
-      if (res.body.length > 0) {
-        expect(res.body[0]).toHaveProperty('clock_in');
-        expect(res.body[0]).toHaveProperty('clock_out');
-      }
+      res.body.forEach((clock) => {
+        expect(clock).toHaveProperty('clock_in');
+        expect(clock).toHaveProperty('clock_out');
+      });
     });
   });
 });

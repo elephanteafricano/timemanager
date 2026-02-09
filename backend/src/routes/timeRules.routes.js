@@ -1,12 +1,12 @@
 // Routes - Time Record Rules
 const { Router } = require('express');
 const {
-	getTimeRule,
-	listTimeRules,
-	getTimeRuleById,
-	createTimeRule,
-	updateTimeRule,
-	deleteTimeRule,
+  getTimeRule,
+  listTimeRules,
+  getTimeRuleById,
+  createTimeRule,
+  updateTimeRule,
+  deleteTimeRule,
 } = require('../controllers/timeRules.controller');
 const auth = require('../middleware/auth.middleware');
 const roleCheck = require('../middleware/roleCheck.middleware');

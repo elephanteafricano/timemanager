@@ -1,6 +1,6 @@
 // Time Record Rules Controller
 const { TimeRule } = require('../models');
-const { asyncHandler, AppError } = require('../utils/errorHandler');
+const { asyncHandler } = require('../utils/errorHandler');
 const { DEFAULT_TIME_RULES } = require('../config/timeRules');
 const { findByIdOrFail, deleteResource, updateResource } = require('../utils/dbHelpers');
 

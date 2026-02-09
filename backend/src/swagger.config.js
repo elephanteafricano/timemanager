@@ -1,3 +1,4 @@
+/* global __dirname */
 const swaggerJsdoc = require('swagger-jsdoc');
 const path = require('path');
 

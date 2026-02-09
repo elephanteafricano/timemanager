@@ -54,7 +54,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const user = await findByIdOrFail(User, id, 'User');
   
   // Exclude fields that should not be updated
-  const { password, role, username, ...rest } = req.body;
+  const { password, role, username: _username, ...rest } = req.body;
   
   // Ensure first_name and last_name are provided
   if (!rest.first_name || rest.first_name.trim() === '') {
