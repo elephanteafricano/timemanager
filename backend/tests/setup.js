@@ -7,9 +7,9 @@ async function setupTestDB() {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ force: true });
-    console.log('✅ Test database setup complete');
+    console.log('Test database setup complete');
   } catch (error) {
-    console.error('❌ Test database setup failed:', error.message);
+    console.error('Test database setup failed:', error.message);
     throw error;
   }
 }
@@ -17,9 +17,9 @@ async function setupTestDB() {
 async function teardownTestDB() {
   try {
     await sequelize.close();
-    console.log('✅ Test database teardown complete');
+    console.log('Test database teardown complete');
   } catch (error) {
-    console.error('❌ Test database teardown failed:', error.message);
+    console.error('Test database teardown failed:', error.message);
   }
 }
 

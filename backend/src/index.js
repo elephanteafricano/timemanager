@@ -2,7 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const pinoHttp = require('pino-http');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger.config');
 const router = require('./routes');
@@ -28,22 +27,19 @@ app.use(express.json());
 // Apply global rate limiter
 app.use(globalLimiter);
 
-// Structured logging with request correlation IDs
-app.use(pinoHttp({
-  logger,
-  genReqId: (req) => req.headers['x-request-id'] || require('crypto').randomUUID(),
-  customLogLevel: (_req, res) => {
-    if (res.statusCode >= 500) {return 'error';}
-    if (res.statusCode >= 400) {return 'warn';}
-    return 'info';
-  },
-  customSuccessMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
-  customErrorMessage: (req, res) => `${req.method} ${req.url} ${res.statusCode}`,
-}));
-
-// Attach request ID to response headers
+// Simple request logging
 app.use((req, res, next) => {
-  res.setHeader('X-Request-ID', req.id);
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
+    logger[level]({
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`
+    });
+  });
   next();
 });
 
@@ -69,10 +65,9 @@ app.use((err, req, res, _next) => {
   const message = err.message || 'Internal Server Error';
   
   // Structured error logging
-  req.log.error({
+  logger.error({
     err,
     status,
-    requestId: req.id,
     path: req.path,
     method: req.method,
   }, message);
@@ -81,7 +76,6 @@ app.use((err, req, res, _next) => {
     error: {
       status,
       message,
-      requestId: req.id,
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });

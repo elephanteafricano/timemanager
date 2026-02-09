@@ -5,6 +5,7 @@ WORKDIR /app
 # Install dependencies in a separate layer
 FROM base AS deps
 COPY package*.json ./
+RUN apk add --no-cache python3 make g++ libc6-compat
 RUN npm ci --legacy-peer-deps
 
 # Final runtime image

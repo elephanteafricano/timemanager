@@ -1,6 +1,7 @@
 // Teams Controller
 const { Team, User } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
+const { findByIdOrFail, deleteResource, updateResource } = require('../utils/dbHelpers');
 
 const listTeams = asyncHandler(async (_req, res) => {
   const teams = await Team.findAll({
@@ -11,10 +12,9 @@ const listTeams = asyncHandler(async (_req, res) => {
 
 const getTeam = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const team = await Team.findByPk(id, {
+  const team = await findByIdOrFail(Team, id, 'Team', {
     include: [{ model: User, as: 'members', attributes: { exclude: ['password_hash'] } }]
   });
-  if (!team) {throw new AppError('Team not found', 404);}
   
   res.json(team);
 });
@@ -29,28 +29,21 @@ const createTeam = asyncHandler(async (req, res) => {
 
 const updateTeam = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const team = await Team.findByPk(id);
-  if (!team) {throw new AppError('Team not found', 404);}
-  
-  await team.update(req.body);
+  const team = await updateResource(Team, id, req.body, 'Team');
   res.json(team);
 });
 
 const deleteTeam = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const team = await Team.findByPk(id);
-  if (!team) {throw new AppError('Team not found', 404);}
-  
-  await team.destroy();
-  res.json({ message: 'Team deleted successfully' });
+  const result = await deleteResource(Team, id, 'Team');
+  res.json(result);
 });
 
 const updateTeamMembers = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { userIds } = req.body;
   
-  const team = await Team.findByPk(id);
-  if (!team) {throw new AppError('Team not found', 404);}
+  await findByIdOrFail(Team, id, 'Team');
   
   // Update all users in userIds array to belong to this team
   if (userIds && Array.isArray(userIds)) {

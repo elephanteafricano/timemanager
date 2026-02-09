@@ -1,22 +1,7 @@
 // Clocks Controller (Time Tracking)
 const { Op } = require('sequelize');
-const { Clock } = require('../models');
+const { Clock, User, Team } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
-
-function _computeTotalHours(records) {
-  const sorted = [...records].sort((a, b) => new Date(a.time) - new Date(b.time));
-  let totalMs = 0;
-  
-  for (let i = 0; i < sorted.length; i += 2) {
-    const inEvent = sorted[i];
-    const outEvent = sorted[i + 1];
-    if (inEvent?.status === true && outEvent?.status === false) {
-      totalMs += new Date(outEvent.time) - new Date(inEvent.time);
-    }
-  }
-  
-  return parseFloat((totalMs / (1000 * 60 * 60)).toFixed(2));
-}
 
 const toggleClock = asyncHandler(async (req, res) => {
   const { user_id } = req.body;
@@ -29,19 +14,29 @@ const toggleClock = asyncHandler(async (req, res) => {
   if (requesterRole !== 'manager' && parseInt(user_id) !== requesterId) {
     throw new AppError('Insufficient permissions', 403);
   }
-  
-  const last = await Clock.findOne({
-    where: { user_id },
-    order: [['time', 'DESC']],
+
+  const user = await User.findByPk(user_id);
+  if (!user) {throw new AppError('User not found', 404);}
+
+  const openClock = await Clock.findOne({
+    where: { user_id, clock_out: null },
+    order: [['clock_in', 'DESC']],
   });
-  
-  const nextStatus = !last || last.status === false;
+
+  if (openClock) {
+    openClock.clock_out = new Date();
+    await openClock.save();
+    res.status(200).json(openClock);
+    return;
+  }
+
   const clock = await Clock.create({
     user_id,
-    status: nextStatus,
-    time: new Date(),
+    team_id: user.team_id || null,
+    clock_in: new Date(),
+    clock_out: null,
   });
-  
+
   res.status(201).json(clock);
 });
 
@@ -63,14 +58,71 @@ const getUserClocks = asyncHandler(async (req, res) => {
   
   const where = { user_id: userId };
   if (start_date || end_date) {
-    where.time = {};
-    if (start_date) {where.time[Op.gte] = new Date(start_date);}
-    if (end_date) {where.time[Op.lte] = new Date(end_date);}
+    where.clock_in = {};
+    if (start_date) {where.clock_in[Op.gte] = new Date(start_date);}
+    if (end_date) {where.clock_in[Op.lte] = new Date(end_date);}
   }
   
-  const clocks = await Clock.findAll({ where, order: [['time', 'ASC']] });
+  const clocks = await Clock.findAll({ where, order: [['clock_in', 'ASC']] });
   
   res.json(clocks);
 });
 
-module.exports = { toggleClock, getUserClocks };
+const updateClock = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const requesterId = req.user.id;
+  const requesterRole = req.user.role;
+
+  if (requesterRole !== 'manager') {
+    throw new AppError('Insufficient permissions', 403);
+  }
+
+  const clock = await Clock.findByPk(id);
+  if (!clock) {throw new AppError('Clock record not found', 404);}
+
+  const user = await User.findByPk(clock.user_id);
+  if (!user) {throw new AppError('User not found', 404);}
+  if (!user.team_id) {throw new AppError('Insufficient permissions', 403);}
+
+  const managedTeam = await Team.findOne({ where: { id: user.team_id, manager_id: requesterId } });
+  if (!managedTeam) {throw new AppError('Insufficient permissions', 403);}
+
+  const { clock_in, clock_out } = req.body;
+  const hasClockIn = Object.prototype.hasOwnProperty.call(req.body, 'clock_in');
+  const hasClockOut = Object.prototype.hasOwnProperty.call(req.body, 'clock_out');
+  if (!hasClockIn && !hasClockOut) {
+    throw new AppError('clock_in or clock_out required', 400);
+  }
+
+  const updates = {};
+  if (hasClockIn) {
+    const parsedIn = new Date(clock_in);
+    if (Number.isNaN(parsedIn.getTime())) {throw new AppError('Invalid clock_in', 400);}
+    updates.clock_in = parsedIn;
+  }
+  if (hasClockOut) {
+    if (clock_out === null) {
+      updates.clock_out = null;
+    } else {
+      const parsedOut = new Date(clock_out);
+      if (Number.isNaN(parsedOut.getTime())) {throw new AppError('Invalid clock_out', 400);}
+      updates.clock_out = parsedOut;
+    }
+  }
+
+  const effectiveClockIn = Object.prototype.hasOwnProperty.call(updates, 'clock_in')
+    ? updates.clock_in
+    : clock.clock_in;
+  const effectiveClockOut = Object.prototype.hasOwnProperty.call(updates, 'clock_out')
+    ? updates.clock_out
+    : clock.clock_out;
+  if (effectiveClockIn && effectiveClockOut && effectiveClockOut < effectiveClockIn) {
+    throw new AppError('clock_out must be after clock_in', 400);
+  }
+
+  // Historical integrity: overwrite timestamps only; never delete clock rows.
+  await clock.update(updates);
+  res.json(clock);
+});
+
+module.exports = { toggleClock, getUserClocks, updateClock };

@@ -3,14 +3,15 @@ const { Router } = require('express');
 const { listUsers, getUser, createUser, updateUser, deleteUser } = require('../controllers/users.controller');
 const auth = require('../middleware/auth.middleware');
 const roleCheck = require('../middleware/roleCheck.middleware');
+const { USER_ROLES } = require('../config/roles');
 
 const router = Router();
 
 router.use(auth);
-router.get('/', roleCheck(['manager']), listUsers);
+router.get('/', roleCheck([USER_ROLES.MANAGER]), listUsers);
 router.get('/:id', getUser);
-router.post('/', roleCheck(['manager']), createUser);
+router.post('/', roleCheck([USER_ROLES.MANAGER]), createUser);
 router.put('/:id', updateUser);
-router.delete('/:id', roleCheck(['manager']), deleteUser);
+router.delete('/:id', roleCheck([USER_ROLES.MANAGER]), deleteUser);
 
 module.exports = router;

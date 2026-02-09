@@ -1,4 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
 const options = {
   definition: {
@@ -19,7 +20,7 @@ const options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'Access token (Bearer <token>)',
+          description: 'JWT access token. Get one by calling POST /api/auth/login with email and password. Enter only the token value (without "Bearer " prefix) in the Swagger UI authorization dialog.',
         },
       },
       schemas: {
@@ -62,7 +63,7 @@ const options = {
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: ['./src/routes/*.js'],
+  apis: [path.join(__dirname, './routes/*.js')],
 };
 
 module.exports = swaggerJsdoc(options);

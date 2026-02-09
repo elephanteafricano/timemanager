@@ -123,6 +123,7 @@ describe('Users Endpoints', () => {
         .set('Authorization', `Bearer ${employeeToken}`)
         .send({
           first_name: 'UpdatedEmployee',
+          last_name: 'Employee',
           phone_number: '555-1234'
         });
 
@@ -137,6 +138,7 @@ describe('Users Endpoints', () => {
         .set('Authorization', `Bearer ${managerToken}`)
         .send({
           first_name: 'ManagerUpdated',
+          last_name: 'Employee',
           role: 'manager'
         });
 
@@ -157,7 +159,11 @@ describe('Users Endpoints', () => {
       const res = await request(app)
         .put(`/api/users/${employeeId}`)
         .set('Authorization', `Bearer ${employeeToken}`)
-        .send({ role: 'manager' });
+        .send({
+          first_name: 'Employee',
+          last_name: 'User',
+          role: 'manager'
+        });
 
       expect(res.statusCode).toBe(403);
     });

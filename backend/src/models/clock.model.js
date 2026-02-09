@@ -5,8 +5,9 @@ const { sequelize } = require('../config/database');
 const Clock = sequelize.define('Clock', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   user_id: { type: DataTypes.INTEGER, allowNull: false },
-  time: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  status: { type: DataTypes.BOOLEAN, allowNull: false }, // true = in, false = out
+  team_id: { type: DataTypes.INTEGER, allowNull: true },
+  clock_in: { type: DataTypes.DATE, allowNull: false },
+  clock_out: { type: DataTypes.DATE, allowNull: true },
 }, {
   tableName: 'clocks',
   underscored: true,

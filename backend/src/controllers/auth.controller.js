@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { validateEmail, validatePassword, validateRequired } = require('../utils/validators');
 const { AppError, asyncHandler } = require('../utils/errorHandler');
+const { sanitizeUser } = require('../utils/userHelpers');
+const { USER_ROLES } = require('../config/roles');
 
 const JWT_ACCESS_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'change_me_in_production';
@@ -16,13 +18,8 @@ function signTokens(payload) {
   return { accessToken, refreshToken };
 }
 
-function sanitize(user) {
-  const { password_hash: _password_hash, ...safe } = user.toJSON();
-  return safe;
-}
-
 const register = asyncHandler(async (req, res) => {
-  const { username, email, password, first_name, last_name, phone_number, role = 'employee' } = req.body;
+  const { username, email, password, first_name, last_name, phone_number, role = USER_ROLES.EMPLOYEE } = req.body;
   
   const { valid, missing } = validateRequired(req.body, ['username', 'email', 'password', 'first_name', 'last_name']);
   if (!valid) {throw new AppError(`Missing: ${missing.join(', ')}`, 400);}
@@ -48,7 +45,7 @@ const register = asyncHandler(async (req, res) => {
     
     const tokens = signTokens({ sub: user.id, role: user.role });
     res.status(201).json({ 
-      user: sanitize(user), 
+      user: sanitizeUser(user), 
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken
     });
@@ -82,7 +79,7 @@ const login = asyncHandler(async (req, res) => {
   
   const tokens = signTokens({ sub: user.id, role: user.role });
   res.json({ 
-    user: sanitize(user), 
+    user: sanitizeUser(user), 
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken
   });

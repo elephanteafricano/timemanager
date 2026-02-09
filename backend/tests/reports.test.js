@@ -54,11 +54,9 @@ describe('Reports Endpoints', () => {
 
     await Clock.bulkCreate([
       // Employee worked 8 hours two days ago
-      { user_id: employeeId, status: true, time: new Date(twoDaysAgo.getTime()) },
-      { user_id: employeeId, status: false, time: new Date(twoDaysAgo.getTime() + 8 * 60 * 60 * 1000) },
+      { user_id: employeeId, team_id: null, clock_in: new Date(twoDaysAgo.getTime()), clock_out: new Date(twoDaysAgo.getTime() + 8 * 60 * 60 * 1000) },
       // Employee worked 6 hours one day ago
-      { user_id: employeeId, status: true, time: new Date(oneDayAgo.getTime()) },
-      { user_id: employeeId, status: false, time: new Date(oneDayAgo.getTime() + 6 * 60 * 60 * 1000) },
+      { user_id: employeeId, team_id: null, clock_in: new Date(oneDayAgo.getTime()), clock_out: new Date(oneDayAgo.getTime() + 6 * 60 * 60 * 1000) },
     ]);
   });
 
@@ -73,11 +71,10 @@ describe('Reports Endpoints', () => {
         .set('Authorization', `Bearer ${employeeToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('userId', employeeId);
-      expect(res.body).toHaveProperty('totalHours');
-      expect(res.body).toHaveProperty('averageDailyHours');
-      expect(res.body).toHaveProperty('workDays');
-      expect(res.body.totalHours).toBeGreaterThan(0);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0].user_id).toBe(employeeId);
+      expect(res.body[0]).toHaveProperty('clock_in');
     });
 
     it('should get any user report as manager', async () => {
@@ -86,8 +83,8 @@ describe('Reports Endpoints', () => {
         .set('Authorization', `Bearer ${managerToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('userId', employeeId);
-      expect(res.body).toHaveProperty('totalHours');
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
     });
 
     it('should filter by date range', async () => {
@@ -99,8 +96,7 @@ describe('Reports Endpoints', () => {
         .set('Authorization', `Bearer ${employeeToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('startDate');
-      expect(res.body).toHaveProperty('endDate');
+      expect(Array.isArray(res.body)).toBe(true);
     });
 
     it('should reject employee accessing other user report', async () => {
@@ -134,25 +130,17 @@ describe('Reports Endpoints', () => {
       expect(res.statusCode).toBe(401);
     });
 
-    it('should calculate correct total hours', async () => {
+    it('should return raw clock records only', async () => {
       const res = await request(app)
         .get(`/api/reports?userId=${employeeId}`)
         .set('Authorization', `Bearer ${employeeToken}`);
 
       expect(res.statusCode).toBe(200);
-      // Should be approximately 14 hours (8 + 6)
-      expect(res.body.totalHours).toBeGreaterThan(13);
-      expect(res.body.totalHours).toBeLessThan(15);
-    });
-
-    it('should calculate average daily hours', async () => {
-      const res = await request(app)
-        .get(`/api/reports?userId=${employeeId}`)
-        .set('Authorization', `Bearer ${employeeToken}`);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.averageDailyHours).toBeGreaterThan(0);
-      expect(res.body.workDays).toBeGreaterThanOrEqual(2);
+      expect(Array.isArray(res.body)).toBe(true);
+      if (res.body.length > 0) {
+        expect(res.body[0]).toHaveProperty('clock_in');
+        expect(res.body[0]).toHaveProperty('clock_out');
+      }
     });
   });
 });

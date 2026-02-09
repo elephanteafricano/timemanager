@@ -5,6 +5,8 @@ const usersRoutes = require('./users.routes');
 const teamsRoutes = require('./teams.routes');
 const clocksRoutes = require('./clocks.routes');
 const reportsRoutes = require('./reports.routes');
+const timeRulesRoutes = require('./timeRules.routes');
+const kpisRoutes = require('./kpis.routes');
 const { authLimiter } = require('../middleware/rateLimiter.middleware');
 
 const router = Router();
@@ -14,6 +16,8 @@ router.use('/users', usersRoutes);
 router.use('/teams', teamsRoutes);
 router.use('/clocks', clocksRoutes);
 router.use('/reports', reportsRoutes);
+router.use('/time-rules', timeRulesRoutes);
+router.use('/kpis', kpisRoutes);
 
 // Health check endpoint
 router.get('/health', (_req, res) => {

@@ -1,5 +1,6 @@
 // Rate limiting middleware
 const rateLimit = require('express-rate-limit');
+const logger = require('../utils/logger');
 
 // Skip rate limiting in test environment
 const skip = () => process.env.NODE_ENV === 'test';
@@ -13,7 +14,7 @@ const globalLimiter = rateLimit({
   skip,
   message: { error: { status: 429, message: 'Too many requests, please try again later.' } },
   handler: (req, res) => {
-    req.log.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded');
+    logger.warn({ ip: req.ip, path: req.path }, 'Rate limit exceeded');
     res.status(429).json({ 
       error: { 
         status: 429, 
@@ -34,7 +35,7 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: false,
   message: { error: { status: 429, message: 'Too many authentication attempts, please try again later.' } },
   handler: (req, res) => {
-    req.log.warn({ ip: req.ip, path: req.path }, 'Auth rate limit exceeded');
+    logger.warn({ ip: req.ip, path: req.path }, 'Auth rate limit exceeded');
     res.status(429).json({ 
       error: { 
         status: 429, 

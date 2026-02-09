@@ -48,6 +48,10 @@ describe('Clocks Endpoints', () => {
     managerToken = loginRes.body.accessToken;
   });
 
+  beforeEach(async () => {
+    await Clock.destroy({ where: {}, truncate: true, cascade: true });
+  });
+
   afterAll(async () => {
     await teardownTestDB();
   });
@@ -62,18 +66,23 @@ describe('Clocks Endpoints', () => {
       expect(res.statusCode).toBe(201);
       expect(res.body).toHaveProperty('id');
       expect(res.body.user_id).toBe(employeeId);
-      expect(res.body.status).toBe(true);
-      expect(res.body.time).toBeTruthy();
+      expect(res.body.clock_in).toBeTruthy();
+      expect(res.body.clock_out).toBeNull();
     });
 
     it('should clock out (second toggle)', async () => {
+      await request(app)
+        .post('/api/clocks')
+        .set('Authorization', `Bearer ${employeeToken}`)
+        .send({ user_id: employeeId });
+
       const res = await request(app)
         .post('/api/clocks')
         .set('Authorization', `Bearer ${employeeToken}`)
         .send({ user_id: employeeId });
 
-      expect(res.statusCode).toBe(201);
-      expect(res.body.status).toBe(false);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.clock_out).toBeTruthy();
     });
 
     it('should allow manager to clock for other user', async () => {
@@ -84,6 +93,7 @@ describe('Clocks Endpoints', () => {
 
       expect(res.statusCode).toBe(201);
       expect(res.body.user_id).toBe(employeeId);
+      expect(res.body.clock_in).toBeTruthy();
     });
 
     it('should reject employee clocking for other user', async () => {
@@ -114,12 +124,13 @@ describe('Clocks Endpoints', () => {
   });
 
   describe('GET /api/clocks/:userId', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       // Ensure some clock records exist
       await Clock.create({
         user_id: employeeId,
-        status: true,
-        time: new Date()
+        team_id: null,
+        clock_in: new Date(),
+        clock_out: null
       });
     });
 
