@@ -1,0 +1,82 @@
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-error {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #7c6fd6;
+  box-shadow: 0 0 0 3px rgba(124, 111, 214, 0.1);
+}
+
+.form-loading {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.form-submit {
+  flex: 1;
+  padding: 12px 24px;
+  background: #7c6fd6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-submit:hover {
+  background: #6a5fb8;
+}
+
+.form-submit:active {
+  transform: scale(0.98);
+}

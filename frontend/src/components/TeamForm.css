@@ -1,0 +1,80 @@
+.team-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-error {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #7c6fd6;
+  box-shadow: 0 0 0 3px rgba(124, 111, 214, 0.1);
+}
+
+.members-list {
+  display: grid;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f9f9f9;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-item input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.member-item label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.form-loading {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
