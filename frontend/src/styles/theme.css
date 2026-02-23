@@ -1,0 +1,80 @@
+:root {
+  --tm-bg: #f4f4f6;
+  --tm-surface: #ffffff;
+  --tm-text: #1a1a1a;
+  --tm-muted: #6f6f6f;
+  --tm-border: #e6e6eb;
+  --tm-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
+  --tm-accent: #b7b7b7;
+  --tm-accent-hover: #a6a6a6;
+}
+
+.tm-shell {
+  position: relative;
+  min-height: 100vh;
+  background: var(--tm-bg);
+  isolation: isolate;
+}
+
+.tm-hero {
+  position: fixed;
+  inset: 0 0 0 240px;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.tm-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.tm-panel {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background: linear-gradient(90deg, rgba(244, 244, 246, 0.94) 0%, rgba(244, 244, 246, 0.78) 100%);
+  backdrop-filter: blur(2px);
+}
+
+.tm-card {
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-border);
+  border-radius: 16px;
+  box-shadow: var(--tm-shadow);
+}
+
+.tm-btn-primary {
+  background: var(--tm-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.tm-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--tm-accent-hover);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+.tm-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .tm-hero {
+    inset: 0 0 0 60px;
+  }
+
+  .tm-panel {
+    background: rgba(244, 244, 246, 0.9);
+  }
+}

@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
-    name: Test on Node ${{ matrix.node-version }}
+  backend:
+    name: Backend on Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -40,17 +40,17 @@ jobs:
       NODE_ENV: test
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install dependencies (backend)
         run: npm ci --legacy-peer-deps
 
       - name: Wait for Postgres to be ready
@@ -61,7 +61,10 @@ jobs:
           done
           echo "Postgres did not become ready in time"; exit 1
 
-      - name: Run tests with coverage
+      - name: Lint (backend)
+        run: npm run lint
+
+      - name: Run tests with coverage (backend)
         run: npm test -- --coverage --runInBand
 
       - name: Upload coverage artifact
@@ -70,3 +73,33 @@ jobs:
         with:
           name: coverage-${{ matrix.node-version }}
           path: backend/coverage
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies (frontend)
+        run: npm ci
+
+      - name: Lint (frontend)
+        run: npm run lint
+
+      - name: Build (frontend)
+        run: npm run build
+
+      - name: Test (frontend)
+        run: npm test -- --watch=false --runInBand --passWithNoTests

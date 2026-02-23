@@ -5,6 +5,3 @@ export const USER_ROLES = {
   EMPLOYEE: 'employee',
   MANAGER: 'manager'
 };
-
-// Array of all valid roles for validation
-export const VALID_ROLES = Object.values(USER_ROLES);

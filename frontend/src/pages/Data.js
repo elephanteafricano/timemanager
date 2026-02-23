@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import useData from '../hooks/useData';
 import tokenService from '../services/tokenService';
-import { USER_ROLES } from '../constants/roles';
+import { isManagerRole } from '../utils/roles';
 import usersService from '../services/users.service';
 import teamsService from '../services/teams.service';
 import Sidebar from '../components/Sidebar';
@@ -20,6 +20,7 @@ import AdvancedKPIs from '../components/AdvancedKPIs';
 import './Data.css';
 
 function Data() {
+  const backgroundUrl = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
   const [user, setUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
@@ -92,17 +93,30 @@ function Data() {
     }
   };
 
+  const confirmAndDelete = async ({ confirmMessage, action, onSuccess }) => {
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      await action();
+      onSuccess();
+    } catch (err) {
+      setFormError(err.response?.data?.message || err.message);
+    }
+  };
+
   const handleDeleteUser = (userId) => {
     if (!isManager) {
       setFormError('Only managers can delete users');
       return;
     }
 
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      usersService.deleteUser(userId)
-        .then(() => setRefreshTrigger(prev => prev + 1))
-        .catch(err => setFormError(err.response?.data?.message || err.message));
-    }
+    confirmAndDelete({
+      confirmMessage: 'Are you sure you want to delete this user?',
+      action: () => usersService.deleteUser(userId),
+      onSuccess: () => setRefreshTrigger(prev => prev + 1),
+    });
   };
 
   const handleCreateTeam = async (formData) => {
@@ -152,16 +166,16 @@ function Data() {
       return;
     }
 
-    if (window.confirm('Are you sure you want to delete this team?')) {
-      teamsService.deleteTeam(teamId)
-        .then(() => setRefreshTrigger(prev => prev + 1))
-        .catch(err => setFormError(err.response?.data?.message || err.message));
-    }
+    confirmAndDelete({
+      confirmMessage: 'Are you sure you want to delete this team?',
+      action: () => teamsService.deleteTeam(teamId),
+      onSuccess: () => setRefreshTrigger(prev => prev + 1),
+    });
   };
 
   if (!user) return null;
 
-  const isManager = user.role === USER_ROLES.MANAGER;
+  const isManager = isManagerRole(user);
   const teamName = isManager
     ? (kpiData?.teamOverview?.teamName || (teams.length > 0 ? teams[0].name : 'No team'))
     : null;
@@ -175,10 +189,11 @@ function Data() {
   }) : null;
 
   return (
-    <div className="dashboard">
+    <div className="dashboard tm-shell">
+      <div className="tm-hero" style={{ backgroundImage: `url(${backgroundUrl})` }} aria-hidden="true" />
       <Sidebar user={user} onLogout={logout} />
       
-      <div className="dashboard-content">
+      <div className="dashboard-content tm-panel">
         <header className="dashboard-header">
           <div>
             <h1 className="dashboard-greeting">Data Dashboard</h1>

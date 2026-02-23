@@ -1,6 +1,6 @@
 // Routes - Authentication
 const { Router } = require('express');
-const { register, login, refresh } = require('../controllers/auth.controller');
+const { register, login, refresh, forgotPassword, resetPassword } = require('../controllers/auth.controller');
 
 const router = Router();
 
@@ -134,5 +134,54 @@ router.post('/login', login);
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/refresh', refresh);
+
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Request a password reset email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Generic success response (does not disclose account existence)
+ */
+router.post('/forgot-password', forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reset password using a valid reset token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, newPassword]
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *       400:
+ *         description: Invalid token, expired token, or invalid password
+ */
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

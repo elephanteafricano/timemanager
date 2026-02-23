@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { applyFieldChange } from '../utils/forms';
 import './TeamForm.css';
 
-function TeamForm({ team, users, onSubmit, loading }) {
+function TeamForm({ team, users, loading }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -30,9 +31,11 @@ function TeamForm({ team, users, onSubmit, loading }) {
   }, [team]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    applyFieldChange({
+      e,
+      setData: setFormData,
+      clearError: () => setError(''),
+    });
   };
 
   const handleUserToggle = (userId) => {
@@ -42,20 +45,6 @@ function TeamForm({ team, users, onSubmit, loading }) {
         ? prev.userIds.filter(id => id !== userId)
         : [...prev.userIds, userId]
     }));
-  };
-
-  const handleSubmit = () => {
-    if (!formData.name) {
-      setError('Team name is required');
-      return;
-    }
-
-    if (!formData.manager_id) {
-      setError('Manager is required');
-      return;
-    }
-
-    onSubmit(formData);
   };
 
   // Filter out invalid users

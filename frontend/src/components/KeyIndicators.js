@@ -13,7 +13,7 @@ function KeyIndicators({ chartData }) {
       
       <div className="indicators-grid">
         {/* Monthly Hours Status */}
-        <div className="indicator-card">
+        <div className="indicator-card tm-card">
           <h3 className="indicator-label">MONTHLY HOURS STATUS</h3>
           <div className="bar-chart">
             {monthlyHours.map((data, idx) => {
@@ -41,7 +41,7 @@ function KeyIndicators({ chartData }) {
         </div>
 
         {/* Attendance Forecast */}
-        <div className="indicator-card">
+        <div className="indicator-card tm-card">
           <h3 className="indicator-label">ATTENDANCE FORECAST</h3>
           <div className="line-chart">
             <svg viewBox="0 0 300 120" className="line-svg">
@@ -88,7 +88,7 @@ function KeyIndicators({ chartData }) {
         </div>
 
         {/* Productivity Score */}
-        <div className="indicator-card">
+        <div className="indicator-card tm-card">
           <h3 className="indicator-label">PRODUCTIVITY SCORE</h3>
           <div className="gauge-chart">
             <svg viewBox="0 0 200 120" className="gauge-svg">
@@ -146,7 +146,7 @@ function KeyIndicators({ chartData }) {
         </div>
 
         {/* Hours by User */}
-        <div className="indicator-card">
+        <div className="indicator-card tm-card">
           <h3 className="indicator-label">HOURS BY USER</h3>
           <div className="horizontal-bars">
             {userHours.map((user, idx) => {

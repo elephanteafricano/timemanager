@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { USER_ROLES } from '../constants/roles';
+import { isManagerRole } from '../utils/roles';
 import './Sidebar.css';
 import HomeIcon from '../assets/svgs/home.svg';
 import DataIcon from '../assets/svgs/data.svg';
@@ -10,7 +10,7 @@ function Sidebar({ user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isManager = user?.role === USER_ROLES.MANAGER;
+  const isManager = isManagerRole(user);
 
   const menuItems = [
     { path: '/home', label: 'Home', icon: HomeIcon },

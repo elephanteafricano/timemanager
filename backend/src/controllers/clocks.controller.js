@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const { Clock, User, Team } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
+const { checkUserPermission } = require('../utils/permissions');
 
 const toggleClock = asyncHandler(async (req, res) => {
   const { user_id } = req.body;
@@ -11,9 +12,7 @@ const toggleClock = asyncHandler(async (req, res) => {
   if (!user_id) {throw new AppError('user_id required', 400);}
   
   // Employees can only clock for themselves
-  if (requesterRole !== 'manager' && parseInt(user_id) !== requesterId) {
-    throw new AppError('Insufficient permissions', 403);
-  }
+  checkUserPermission(requesterRole, requesterId, user_id);
 
   const user = await User.findByPk(user_id);
   if (!user) {throw new AppError('User not found', 404);}
@@ -47,9 +46,7 @@ const getUserClocks = asyncHandler(async (req, res) => {
   const requesterRole = req.user.role;
   
   // Employees can only view their own clocks
-  if (requesterRole !== 'manager' && parseInt(userId) !== requesterId) {
-    throw new AppError('Insufficient permissions', 403);
-  }
+  checkUserPermission(requesterRole, requesterId, userId);
   
   // Check if user exists
   const { User } = require('../models');

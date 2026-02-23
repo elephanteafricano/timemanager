@@ -18,19 +18,21 @@
 }
 
 .btn-add {
-  background: #7c6fd6;
-  color: white;
-  border: none;
+  background: #b7b7b7;
+  color: #ffffff;
+  border: 1px solid #b7b7b7;
   padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   font-size: 14px;
 }
 
 .btn-add:hover {
-  background: #6859c0;
+  background: #a6a6a6;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .data-grid {
@@ -40,10 +42,11 @@
 }
 
 .data-card {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e6e6eb;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -151,12 +154,13 @@
 }
 
 .empty-state {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e6e6eb;
   padding: 40px;
   text-align: center;
   color: #999;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
 }
 
 .reports-summary {
@@ -166,14 +170,15 @@
 }
 
 .summary-card {
-  background: linear-gradient(135deg, #7c6fd6 0%, #9b8ce8 100%);
+  background: linear-gradient(135deg, #9a9a9a 0%, #b6b6b6 100%);
   color: white;
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid #e6e6eb;
   padding: 24px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
   transition: transform 0.2s;
 }
 
@@ -204,26 +209,28 @@
 
 .btn-secondary {
   background: white;
-  color: #7c6fd6;
-  border: 2px solid #7c6fd6;
+  color: #6f6f6f;
+  border: 1px solid #b7b7b7;
   padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #7c6fd6;
+  background: #b7b7b7;
   color: white;
 }
 
 .loading {
-  background: white;
+  background: #ffffff;
+  border: 1px solid #e6e6eb;
   padding: 40px;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 16px;
   color: #666;
+  box-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
 }
 
 .error {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { validateEmail, validatePassword, getPasswordError } from '../utils/validators';
+import { validateEmail, getPasswordError } from '../utils/validators';
 import { USER_ROLES } from '../constants/roles';
+import { applyFieldChange } from '../utils/forms';
 import './UserForm.css';
 
 function UserForm({ user, onSubmit, loading }) {
@@ -30,9 +31,11 @@ function UserForm({ user, onSubmit, loading }) {
   }, [user]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    applyFieldChange({
+      e,
+      setData: setFormData,
+      clearError: () => setError(''),
+    });
   };
 
   const handleSubmit = async () => {

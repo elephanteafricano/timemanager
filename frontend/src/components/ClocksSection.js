@@ -1,18 +1,13 @@
 import React from 'react';
 import ClockIcon from '../assets/svgs/clock.svg';
-
-const toValidDate = (value) => {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
+import { toValidDate } from '../utils/date';
 
 function ClocksSection({ clocks }) {
   return (
     <section className="data-section">
       <h2 className="section-title">Clock Entries ({clocks.length})</h2>
       {clocks.length === 0 ? (
-        <div className="empty-state">
+        <div className="empty-state tm-card">
           <p>No clock entries found</p>
         </div>
       ) : (
@@ -30,7 +25,7 @@ function ClocksSection({ clocks }) {
                 : `${clockIn.toLocaleString()} → ${clockOut.toLocaleString()}`;
 
             return (
-              <div key={clock.id} className="data-card">
+              <div key={clock.id} className="data-card tm-card">
                 <div className="card-header">
                   <div className="clock-icon"><img src={ClockIcon} alt="Clock" /></div>
                   <span className={`status-badge ${isOpen ? 'active' : 'completed'}`}>

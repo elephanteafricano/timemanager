@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import tokenService from '../services/tokenService';
 import Sidebar from '../components/Sidebar';
+import { applyFieldChange } from '../utils/forms';
 import './Profile.css';
 import usersService from '../services/users.service';
 
@@ -18,7 +19,7 @@ function Profile() {
     email: '',
     phone_number: '',
   });
-  const { logout, getUser } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,9 +36,11 @@ function Profile() {
   }, [navigate]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    applyFieldChange({
+      e,
+      setData: setFormData,
+      clearError: () => setError(''),
+    });
   };
 
   const handleSaveProfile = async () => {

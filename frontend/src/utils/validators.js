@@ -13,17 +13,6 @@ export const validateEmail = (email) => {
 };
 
 /**
- * Validate password strength
- * Requirements: minimum 8 characters, at least one uppercase letter, at least one digit
- * @param {string} password - Password to validate
- * @returns {boolean} True if password meets strength requirements
- */
-export const validatePassword = (password) => {
-  if (!password || typeof password !== 'string') return false;
-  return password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
-};
-
-/**
  * Get password validation error message
  * @param {string} password - Password to validate
  * @returns {string|null} Error message or null if valid

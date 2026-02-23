@@ -11,6 +11,8 @@ const User = sequelize.define('User', {
   last_name: { type: DataTypes.STRING, allowNull: false },
   phone_number: { type: DataTypes.STRING },
   role: { type: DataTypes.ENUM('employee', 'manager'), defaultValue: 'employee', allowNull: false },
+  reset_password_token_hash: { type: DataTypes.STRING, allowNull: true },
+  reset_password_expires_at: { type: DataTypes.DATE, allowNull: true },
 }, {
   tableName: 'users',
   underscored: true,

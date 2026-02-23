@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './Modal.css';
 
 function Modal({ isOpen, title, onClose, onSubmit, children, hideSubmitButton = false }) {

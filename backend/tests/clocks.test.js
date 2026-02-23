@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../src/index');
 const { _sequelize, setupTestDB, teardownTestDB } = require('./setup');
-const { User, Clock } = require('../src/models');
+const { User, Clock, Team } = require('../src/models');
 
 describe('Clocks Endpoints', () => {
   let employeeToken, managerToken, employeeId, managerId;
@@ -50,6 +50,8 @@ describe('Clocks Endpoints', () => {
 
   beforeEach(async () => {
     await Clock.destroy({ where: {}, truncate: true, cascade: true });
+    await Team.destroy({ where: {} });
+    await User.update({ team_id: null }, { where: { id: [employeeId, managerId] } });
   });
 
   afterAll(async () => {
@@ -168,6 +170,103 @@ describe('Clocks Endpoints', () => {
         .set('Authorization', `Bearer ${managerToken}`);
 
       expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('GET /api/users/:id/clocks', () => {
+    beforeEach(async () => {
+      await Clock.create({
+        user_id: employeeId,
+        team_id: null,
+        clock_in: new Date(),
+        clock_out: null
+      });
+    });
+
+    it('should get own clocks through users alias route', async () => {
+      const res = await request(app)
+        .get(`/api/users/${employeeId}/clocks`)
+        .set('Authorization', `Bearer ${employeeToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThanOrEqual(1);
+      expect(res.body[0]).toHaveProperty('clock_in');
+      expect(res.body[0]).toHaveProperty('clock_out');
+    });
+  });
+
+  describe('PUT /api/clocks/:id', () => {
+    const createManagedClock = async () => {
+      const team = await Team.create({
+        name: 'Managed Team',
+        manager_id: managerId
+      });
+
+      await User.update({ team_id: team.id }, { where: { id: employeeId } });
+
+      const clock = await Clock.create({
+        user_id: employeeId,
+        team_id: team.id,
+        clock_in: new Date('2026-01-03T09:00:00Z'),
+        clock_out: null
+      });
+
+      return clock;
+    };
+
+    it('should update clock as manager for managed team member', async () => {
+      const clock = await createManagedClock();
+
+      const res = await request(app)
+        .put(`/api/clocks/${clock.id}`)
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ clock_out: '2026-01-03T17:00:00Z' });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.id).toBe(clock.id);
+      expect(res.body.clock_out).toBeTruthy();
+    });
+
+    it('should reject unauthorized access', async () => {
+      const clock = await createManagedClock();
+
+      const res = await request(app)
+        .put(`/api/clocks/${clock.id}`)
+        .send({ clock_out: '2026-01-03T17:00:00Z' });
+
+      expect(res.statusCode).toBe(401);
+    });
+
+    it('should reject employee updating clock', async () => {
+      const clock = await createManagedClock();
+
+      const res = await request(app)
+        .put(`/api/clocks/${clock.id}`)
+        .set('Authorization', `Bearer ${employeeToken}`)
+        .send({ clock_out: '2026-01-03T17:00:00Z' });
+
+      expect(res.statusCode).toBe(403);
+    });
+
+    it('should return 404 for non-existent clock', async () => {
+      const res = await request(app)
+        .put('/api/clocks/99999')
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ clock_out: '2026-01-03T17:00:00Z' });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should reject update without clock_in or clock_out', async () => {
+      const clock = await createManagedClock();
+
+      const res = await request(app)
+        .put(`/api/clocks/${clock.id}`)
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({});
+
+      expect(res.statusCode).toBe(400);
     });
   });
 });

@@ -1,5 +1,4 @@
 import React from 'react';
-import { USER_ROLES } from '../constants/roles';
 
 function UsersSection({ users, currentUser, isManager, onEditUser, onDeleteUser, onAddUser }) {
   return (
@@ -14,7 +13,7 @@ function UsersSection({ users, currentUser, isManager, onEditUser, onDeleteUser,
       </div>
       <div className="data-grid">
         {users.map(u => (
-          <div key={u.id} className="data-card">
+          <div key={u.id} className="data-card tm-card">
             <div className="card-header">
               <div className="user-avatar">{u.username[0].toUpperCase()}</div>
               <div className="card-title">{u.first_name} {u.last_name}</div>

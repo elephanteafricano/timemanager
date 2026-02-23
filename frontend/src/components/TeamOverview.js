@@ -8,7 +8,7 @@ function TeamOverview({ teamName, employeeStats, globalStats }) {
         <div className="section-header">
           <h2 className="section-title">Team Overview {teamName ? `(${teamName})` : ''}</h2>
         </div>
-        <div className="empty-state">
+        <div className="empty-state tm-card">
           <p>No employees in your team</p>
         </div>
       </section>
@@ -22,25 +22,25 @@ function TeamOverview({ teamName, employeeStats, globalStats }) {
       </div>
 
       <div className="stats-overview">
-        <div className="stat-card-small">
+        <div className="stat-card-small tm-card">
           <div className="stat-number">{globalStats.totalEmployees}</div>
           <div className="stat-text">Employees</div>
         </div>
-        <div className="stat-card-small active">
+        <div className="stat-card-small tm-card active">
           <div className="stat-number">{globalStats.currentlyClockedIn}</div>
           <div className="stat-text">Currently Online</div>
         </div>
-        <div className="stat-card-small warning">
+        <div className="stat-card-small tm-card warning">
           <div className="stat-number">{globalStats.avgLateRate}%</div>
           <div className="stat-text">Average Tardiness Rate</div>
         </div>
-        <div className="stat-card-small">
+        <div className="stat-card-small tm-card">
           <div className="stat-number">{globalStats.employeesWithIssues}</div>
           <div className="stat-text">Needs Attention</div>
         </div>
       </div>
 
-      <div className="table-container">
+      <div className="table-container tm-card">
         <table className="employee-table">
           <thead>
             <tr>
@@ -92,7 +92,7 @@ function TeamOverview({ teamName, employeeStats, globalStats }) {
             {employeeStats
               .filter(e => e.status !== 'good')
               .map(emp => (
-                <div key={emp.id} className={`alert-card ${emp.status}`}>
+                <div key={emp.id} className={`alert-card tm-card ${emp.status}`}>
                   <div className="alert-header">
                     <strong>{emp.name}</strong>
                     <span className="alert-badge">{emp.lateRate}% tardiness</span>

@@ -1,5 +1,4 @@
 // Validation utilities with error handling
-const { VALID_ROLES } = require('../config/roles');
 
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,8 +14,4 @@ const validateRequired = (data, fields) => {
   return { valid: missing.length === 0, missing };
 };
 
-const validateRole = (role) => {
-  return VALID_ROLES.includes(role);
-};
-
-module.exports = { validateEmail, validatePassword, validateRequired, validateRole };
+module.exports = { validateEmail, validatePassword, validateRequired };

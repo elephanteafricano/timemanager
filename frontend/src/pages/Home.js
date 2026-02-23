@@ -12,13 +12,14 @@ import DataIcon from '../assets/svgs/data.svg';
 import './Home.css';
 
 function Home() {
+  const backgroundUrl = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
   const [user, setUser] = useState(null);
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [clockInTime, setClockInTime] = useState(null);
   const [clockLoading, setClockLoading] = useState(false);
   const [clockError, setClockError] = useState(null);
-  const { logout, getUser } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -156,10 +157,11 @@ function Home() {
   };
 
   return (
-    <div className="dashboard">
+    <div className="dashboard tm-shell">
+      <div className="tm-hero" style={{ backgroundImage: `url(${backgroundUrl})` }} aria-hidden="true" />
       <Sidebar user={user} onLogout={logout} />
       
-      <div className="dashboard-content">
+      <div className="dashboard-content tm-panel">
         <header className="dashboard-header">
           <div>
             <h1 className="dashboard-greeting">
@@ -167,14 +169,14 @@ function Home() {
             </h1>
             <p className="dashboard-subtitle">Here's what's happening with your time tracking today.</p>
           </div>
-          <button onClick={() => navigate('/data')} className="btn-primary">
+          <button onClick={() => navigate('/data')} className="btn-primary tm-btn-primary">
             View Data
           </button>
         </header>
 
         <div className="dashboard-grid">
           {/* Clock Status Card */}
-          <div className={`stat-card clock-card ${isClockedIn ? 'active' : 'inactive'}`}>
+          <div className={`stat-card tm-card clock-card ${isClockedIn ? 'active' : 'inactive'}`}>
             <div className="stat-header">
               <span className="stat-icon">
                 <img src={ClockIcon} alt="Clock" />
@@ -201,7 +203,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card tm-card">
             <div className="stat-header">
               <span className="stat-icon">
                 <img src={UserIcon} alt="User" />
@@ -214,7 +216,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card tm-card">
             <div className="stat-header">
               <span className="stat-icon">
                 <img src={EmailIcon} alt="Email" />
@@ -224,7 +226,7 @@ function Home() {
             <div className="stat-value-small">{user.email}</div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card tm-card">
             <div className="stat-header">
               <span className="stat-icon">
                 <img src={TeamIcon} alt="Team" />
@@ -237,7 +239,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="stat-card highlight">
+          <div className="stat-card tm-card highlight">
             <div className="stat-header">
               <span className="stat-icon">
                 <img src={DataIcon} alt="Actions" />

@@ -12,6 +12,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "lint": "eslint src --ext .js,.jsx",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -19,7 +20,11 @@
   "eslintConfig": {
     "extends": [
       "react-app"
-    ]
+    ],
+    "rules": {
+      "jsx-a11y/anchor-is-valid": "error",
+      "no-unused-vars": "warn"
+    }
   },
   "browserslist": {
     "production": [

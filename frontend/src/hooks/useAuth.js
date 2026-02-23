@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import authService from '../services/auth.service';
 import tokenService from '../services/tokenService';
 
-export function useAuth() {
+function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();

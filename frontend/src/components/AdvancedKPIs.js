@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 const clamp01 = (value) => Math.max(0, Math.min(1, value));
 
 const formatPercent = (value) => {
-  if (!Number.isFinite(value)) return '—';
+  if (!Number.isFinite(value)) return '--';
   return `${Math.round(value)}%`;
 };
 
 const formatHours = (value, { signed = false } = {}) => {
-  if (!Number.isFinite(value)) return '—';
+  if (!Number.isFinite(value)) return '--';
   const abs = Math.abs(value);
-  if (abs < 0.01) return '—';
+  if (abs < 0.01) return '--';
   if (abs < 0.25) {
     if (signed && value < 0) return '- < 15 min';
     if (signed && value > 0) return '+ < 15 min';
@@ -22,12 +22,12 @@ const formatHours = (value, { signed = false } = {}) => {
 };
 
 const formatCount = (value) => {
-  if (!Number.isFinite(value)) return '—';
+  if (!Number.isFinite(value)) return '--';
   return Math.round(value).toString();
 };
 
 const formatTimeValue = (value) => {
-  if (!value || value === 'N/A') return '—';
+  if (!value || value === 'N/A') return '--';
   return value;
 };
 
@@ -93,7 +93,7 @@ function AdvancedKPIs({ kpis }) {
         </div>
         <div className="kpi-grid">
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(percentScore(kpis.onTimeRate))}
             title="Percent of shifts that started within the allowed grace period."
           >
@@ -105,7 +105,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Clock-ins within grace period</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(percentScore(kpis.latenessRate, true))}
             title="Percent of shifts that started after the grace period."
           >
@@ -117,7 +117,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">After grace period</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(percentScore(kpis.earlyDepartureRate, true))}
             title="Percent of shifts that ended before the scheduled end time."
           >
@@ -129,7 +129,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Before scheduled end</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Average time employees clock in."
           >
@@ -141,7 +141,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Typical first clock-in</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Average time employees clock out."
           >
@@ -162,7 +162,7 @@ function AdvancedKPIs({ kpis }) {
         </div>
         <div className="kpi-grid">
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Total number of completed shifts."
           >
@@ -174,7 +174,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Completed shifts</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Average duration of completed shifts."
           >
@@ -186,7 +186,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Per completed shift</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Total hours worked across completed shifts."
           >
@@ -198,7 +198,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Worked hours</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(null)}
             title="Average hours worked per week."
           >
@@ -219,7 +219,7 @@ function AdvancedKPIs({ kpis }) {
         </div>
         <div className="kpi-grid">
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(percentScore(kpis.scheduleComplianceRate))}
             title="Percent of shifts that meet start, end, and minimum hours."
           >
@@ -231,7 +231,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Meets schedule rules</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(overtimeScore(kpis.overtimeHours))}
             title="Hours worked beyond the standard schedule."
           >
@@ -243,7 +243,7 @@ function AdvancedKPIs({ kpis }) {
             <div className="kpi-desc">Beyond standard hours</div>
           </div>
           <div
-            className="kpi-card"
+            className="kpi-card tm-card"
             style={scoreToAccent(varianceScore(kpis.hoursVariance))}
             title="Difference between worked and expected hours."
           >
@@ -265,7 +265,7 @@ function AdvancedKPIs({ kpis }) {
           </div>
           <div className="kpi-grid">
             <div
-              className="kpi-card"
+              className="kpi-card tm-card"
               style={scoreToAccent(null)}
               title="Expected hours based on working days and time rules."
             >
@@ -277,7 +277,7 @@ function AdvancedKPIs({ kpis }) {
               <div className="kpi-desc">Per time rules</div>
             </div>
             <div
-              className="kpi-card"
+              className="kpi-card tm-card"
               style={scoreToAccent(null)}
               title="Longest completed shift duration."
             >
@@ -288,7 +288,7 @@ function AdvancedKPIs({ kpis }) {
               <div className="kpi-value">{formatHours(kpis.longestShift)}</div>
             </div>
             <div
-              className="kpi-card"
+              className="kpi-card tm-card"
               style={scoreToAccent(null)}
               title="Shortest completed shift duration."
             >
@@ -299,7 +299,7 @@ function AdvancedKPIs({ kpis }) {
               <div className="kpi-value">{formatHours(kpis.shortestShift)}</div>
             </div>
             <div
-              className="kpi-card"
+              className="kpi-card tm-card"
               style={scoreToAccent(null)}
               title="Weekday with the most recorded shifts."
             >
@@ -317,3 +317,4 @@ function AdvancedKPIs({ kpis }) {
 }
 
 export default AdvancedKPIs;
+

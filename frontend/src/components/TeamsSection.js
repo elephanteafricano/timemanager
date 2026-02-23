@@ -13,13 +13,13 @@ function TeamsSection({ teams, isManager, onEditTeam, onDeleteTeam, onAddTeam })
         )}
       </div>
       {teams.length === 0 ? (
-        <div className="empty-state">
+        <div className="empty-state tm-card">
           <p>No teams found</p>
         </div>
       ) : (
         <div className="data-grid">
           {teams.filter(team => team && team.id).map(team => (
-            <div key={team.id} className="data-card">
+            <div key={team.id} className="data-card tm-card">
               <div className="card-header">
                 <div className="team-icon"><img src={TeamIcon} alt="Team" /></div>
                 <div className="card-title">{team.name || 'Unnamed Team'}</div>

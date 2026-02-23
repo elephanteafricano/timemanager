@@ -1,13 +1,13 @@
 .dashboard {
   display: flex;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 .dashboard-content {
   flex: 1;
   margin-left: 240px;
-  padding: 32px;
+  padding: 40px;
   overflow-y: auto;
 }
 
@@ -22,35 +22,36 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .dashboard-greeting {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 34px;
+  font-weight: 700;
   color: #1a1a1a;
   margin: 0 0 8px 0;
+  letter-spacing: -0.4px;
 }
 
 .dashboard-subtitle {
-  font-size: 16px;
-  color: #666;
+  font-size: 14px;
+  color: #6f6f6f;
   margin: 0;
 }
 
 .btn-primary {
-  background: #7c6fd6;
-  color: white;
-  border: none;
+  background: #b7b7b7;
+  color: #ffffff;
+  border: 1px solid #b7b7b7;
   padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #6859c0;
+  background: #a6a6a6;
 }
 
 .dashboard-grid {
@@ -61,10 +62,11 @@
 }
 
 .stat-card {
-  background: white;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e6e6eb;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 14px 40px rgba(26, 26, 26, 0.12);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -74,7 +76,7 @@
 }
 
 .stat-card.highlight {
-  background: linear-gradient(135deg, #7c6fd6 0%, #9b8ce8 100%);
+  background: linear-gradient(135deg, #9a9a9a 0%, #b6b6b6 100%);
   color: white;
 }
 
@@ -92,8 +94,8 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  background: #f4f4f6;
+  border-radius: 12px;
 }
 
 .stat-icon img {
@@ -113,8 +115,8 @@
 
 .stat-label {
   font-size: 14px;
-  color: #666;
-  font-weight: 500;
+  color: #6f6f6f;
+  font-weight: 600;
 }
 
 .stat-card.highlight .stat-label {
@@ -134,7 +136,7 @@
 
 .stat-value-small {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
   word-break: break-all;
 }
@@ -146,11 +148,11 @@
 .stat-tag {
   display: inline-block;
   padding: 4px 12px;
-  background: #f0f0f0;
+  background: #f4f4f6;
   border-radius: 12px;
   font-size: 12px;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: #6f6f6f;
 }
 
 .stat-card.highlight .stat-tag {
@@ -160,8 +162,8 @@
 
 .stat-card.clock-card {
   grid-column: 1 / -1;
-  background: white;
-  border: 2px solid #f0f0f0;
+  background: #ffffff;
+  border: 1px solid #e6e6eb;
   position: relative;
   overflow: hidden;
 }
@@ -209,11 +211,11 @@
 }
 
 .clock-toggle-btn {
-  background: #7c6fd6;
+  background: #b7b7b7;
   color: white;
   border: none;
   padding: 16px 32px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -222,9 +224,9 @@
 }
 
 .clock-toggle-btn:hover:not(:disabled) {
-  background: #6859c0;
+  background: #a6a6a6;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(124, 111, 214, 0.4);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 .clock-toggle-btn.clock-out {
@@ -298,7 +300,7 @@
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

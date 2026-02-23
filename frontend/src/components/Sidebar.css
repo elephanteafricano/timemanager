@@ -1,63 +1,71 @@
 .sidebar {
   width: 240px;
   height: 100vh;
-  background: #fff;
-  border-right: 1px solid #e8e8ea;
+  background: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid #e6e6eb;
+  box-shadow: 8px 0 24px rgba(26, 26, 26, 0.08);
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   position: fixed;
   left: 0;
   top: 0;
+  z-index: 3;
 }
 
 .sidebar-header {
-  padding: 24px 20px;
-  border-bottom: 1px solid #e8e8ea;
+  padding: 24px;
+  border-bottom: 1px solid #ececf0;
 }
 
 .sidebar-logo {
   font-size: 20px;
   font-weight: 700;
-  color: #7c6fd6;
+  color: #1a1a1a;
   margin: 0;
+  letter-spacing: -0.2px;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 12px 14px;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
+  color: #6f6f6f;
   transition: all 0.2s ease;
   text-align: left;
+  border: 1px solid transparent;
 }
 
 .sidebar-item:hover {
-  background: #f5f4f8;
-  color: #333;
+  background: #f4f4f6;
+  color: #1a1a1a;
+  border-color: #e6e6eb;
 }
 
 .sidebar-item.active {
-  background: #7c6fd6;
+  background: #b7b7b7;
   color: #fff;
+  border-color: #b7b7b7;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 .sidebar-item.active:hover {
-  background: #6a5dc4;
+  background: #a6a6a6;
 }
 
 .sidebar-icon {
@@ -79,7 +87,7 @@
 
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid #e8e8ea;
+  border-top: 1px solid #ececf0;
 }
 
 .sidebar-user {
@@ -125,9 +133,9 @@
 .sidebar-logout {
   width: 100%;
   padding: 10px;
-  border: 1px solid #e8e8ea;
+  border: 1px solid #d8d8de;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -136,9 +144,9 @@
 }
 
 .sidebar-logout:hover {
-  background: #f5f4f8;
-  border-color: #7c6fd6;
-  color: #7c6fd6;
+  background: #f4f4f6;
+  border-color: #b7b7b7;
+  color: #1a1a1a;
 }
 
 @media (max-width: 768px) {

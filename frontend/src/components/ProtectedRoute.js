@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import tokenService from '../services/tokenService';
-import { USER_ROLES } from '../constants/roles';
+import { isManagerRole } from '../utils/roles';
 
 // NOTE: This role check is also performed on the backend in roleCheck middleware.
 // Frontend checks improve UX by preventing unauthorized navigation.
@@ -12,7 +12,7 @@ function ProtectedRoute({ children, requireManager = false }) {
 
   if (requireManager) {
     const user = tokenService.getUser();
-    if (user?.role !== USER_ROLES.MANAGER) {
+    if (!isManagerRole(user)) {
       return <Navigate to="/home" replace />;
     }
   }
