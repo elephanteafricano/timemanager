@@ -102,6 +102,11 @@ const updateUser = asyncHandler(async (req, res) => {
 
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const requesterId = req.user.id;
+  const requesterRole = req.user.role;
+
+  checkUserPermission(requesterRole, requesterId, id);
+
   const result = await deleteResource(User, id, 'User');
   res.json(result);
 });

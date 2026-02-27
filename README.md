@@ -19,7 +19,7 @@ cd C:\Users\temoa\Desktop\timemanager
 docker compose --profile dev up
 
 # Or production mode
-docker compose up
+docker compose -f compose.prod.yml up -d --build
 
 # Test health via Nginx
 curl http://localhost:8080/api/health
@@ -92,7 +92,7 @@ DB_SYNC=false
 - `GET /api/users/:id` - Get user by ID (manager or self)
 - `POST /api/users` - Create user (manager only)
 - `PUT /api/users/:id` - Update user (manager or self; employees can't change role)
-- `DELETE /api/users/:id` - Delete user (manager only)
+- `DELETE /api/users/:id` - Delete user (manager or self)
 
 ### Teams
 - `GET /api/teams` - List all teams
@@ -147,6 +147,19 @@ npm run lint:fix
 - GitHub Actions runs tests + coverage on push/PR
 - CodeQL security scanning enabled
 - ESLint checks enforced
+
+### Accessibility & UX (CI)
+
+Accessibility is lint-gated in CI on every push/PR in `.github/workflows/ci.yml`:
+- job: `frontend`
+- step: `Lint (frontend)` running `npm run lint`
+
+Frontend accessibility rules are enforced in `frontend/package.json` under `eslintConfig.rules`, including:
+- `jsx-a11y/anchor-is-valid: "error"`
+- `jsx-a11y/alt-text: "error"`
+- `jsx-a11y/aria-role: "error"`
+
+This provides auditable REQ-025 evidence that UX/accessibility checks are part of CI.
 
 ## Structured Logging & Request Tracing
 
@@ -241,7 +254,8 @@ The server trusts proxy headers (`app.set('trust proxy', 1)`) for accurate IP id
 ### Production Mode
 
 ```bash
-docker compose up --build
+docker compose -f compose.prod.yml up -d --build
+docker compose -f compose.prod.yml ps
 ```
 
 Runs: Postgres, backend (production Dockerfile), Nginx reverse proxy on port 8080
@@ -253,6 +267,96 @@ docker compose --profile dev up --build
 ```
 
 Runs: Postgres, backend-dev (nodemon + volume mounts), Nginx on port 8080
+
+REQ-009 separation:
+- Dev uses `docker compose --profile dev ...` for hot-reload via `backend-dev`.
+- Prod uses `docker compose -f compose.prod.yml ...` for production-style containers.
+- Keep validation and troubleshooting commands in the same mode you started.
+
+### Runtime Validation (REQ-008)
+
+REQ-008 requires proving that backend and frontend are exposed, and that database data persists across restarts.
+
+#### A) Dev Compose (`compose.yml`)
+
+```bash
+# Start dev stack
+docker compose --profile dev up -d --build
+
+# Backend reachable through reverse proxy
+curl -fsS http://localhost:8080/api/health
+# EXPECT: HTTP 200 + JSON containing "status":"ok"
+
+# Frontend reachable through reverse proxy
+curl -I http://localhost:8080/
+# EXPECT: HTTP/1.1 200 OK (or 304) from nginx
+
+# DB persistence check: create user through API, verify before/after restart
+TS=$(date +%s)
+EMAIL="req008.dev.${TS}@example.com"
+USERNAME="req008dev${TS}"
+
+curl -fsS -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"${USERNAME}\",\"email\":\"${EMAIL}\",\"password\":\"Password1\",\"first_name\":\"Req008\",\"last_name\":\"Dev\"}"
+# EXPECT: HTTP 201 + JSON containing created user (including "email":"${EMAIL}")
+
+docker compose exec -T postgres psql -U admin -d timemanager -tAc "SELECT COUNT(*) FROM users WHERE email='${EMAIL}';"
+# EXPECT: 1
+
+docker compose down
+docker compose --profile dev up -d
+
+docker compose exec -T postgres psql -U admin -d timemanager -tAc "SELECT COUNT(*) FROM users WHERE email='${EMAIL}';"
+# EXPECT: 1 (same value after restart, proving persistence)
+```
+
+#### B) Prod Compose (`compose.prod.yml`)
+
+```bash
+# Start prod stack
+docker compose -f compose.prod.yml up -d --build
+
+# Backend reachable through reverse proxy
+curl -fsS http://localhost:8080/api/health
+# EXPECT: HTTP 200 + JSON containing "status":"ok"
+
+# Frontend reachable through reverse proxy
+curl -I http://localhost:8080/
+# EXPECT: HTTP/1.1 200 OK (or 304) from nginx
+
+# DB persistence check: create user through API, verify before/after restart
+TS=$(date +%s)
+EMAIL="req008.prod.${TS}@example.com"
+USERNAME="req008prod${TS}"
+
+curl -fsS -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"${USERNAME}\",\"email\":\"${EMAIL}\",\"password\":\"Password1\",\"first_name\":\"Req008\",\"last_name\":\"Prod\"}"
+# EXPECT: HTTP 201 + JSON containing created user (including "email":"${EMAIL}")
+
+docker compose -f compose.prod.yml exec -T postgres psql -U admin -d timemanager -tAc "SELECT COUNT(*) FROM users WHERE email='${EMAIL}';"
+# EXPECT: 1
+
+docker compose -f compose.prod.yml down
+docker compose -f compose.prod.yml up -d
+
+docker compose -f compose.prod.yml exec -T postgres psql -U admin -d timemanager -tAc "SELECT COUNT(*) FROM users WHERE email='${EMAIL}';"
+# EXPECT: 1 (same value after restart, proving persistence)
+```
+
+### Mailpit (Fake Email)
+
+- Mailpit UI: `http://localhost:8025`
+- Password reset emails from `POST /api/auth/forgot-password` are delivered to Mailpit in Docker
+
+```bash
+curl -fsS -X POST http://localhost:8080/api/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email":"manager1@example.com"}'
+
+curl -fsS http://localhost:8025/api/v1/message/latest/raw
+```
 
 ### Common Commands
 

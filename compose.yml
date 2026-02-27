@@ -19,6 +19,13 @@ services:
       timeout: 5s
       retries: 5
 
+  mailpit:
+    image: axllent/mailpit:v1.24
+    container_name: timemanager-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
   backend:
     build:
       context: ./backend
@@ -31,11 +38,16 @@ services:
       DB_SYNC: "true"
       JWT_SECRET: ${JWT_SECRET:-production_jwt_secret_key_change_me_now}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-production_jwt_refresh_secret_change_me}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
     ports:
       - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   frontend:
     build:
@@ -66,9 +78,14 @@ services:
       DB_SYNC: "true"
       JWT_SECRET: ${JWT_SECRET:-development_jwt_secret_key_minvalue32}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-development_jwt_refresh_secret_minvalue32}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
       - "3000:3000"
 

@@ -22,6 +22,8 @@
       "react-app"
     ],
     "rules": {
+      "jsx-a11y/alt-text": "error",
+      "jsx-a11y/aria-role": "error",
       "jsx-a11y/anchor-is-valid": "error",
       "no-unused-vars": "warn"
     }
