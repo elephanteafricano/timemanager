@@ -1,0 +1,223 @@
+.team-members-card {
+  overflow: hidden;
+}
+
+.team-members-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.team-members-table th,
+.team-members-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.team-members-table th {
+  font-weight: 600;
+}
+
+.member-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.member-name-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-full-name {
+  font-weight: 600;
+}
+
+.member-subtitle {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.member-contact-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-actions-header {
+  text-align: right;
+}
+
+.member-actions-cell {
+  text-align: right;
+}
+
+.members-empty-cell {
+  color: #6b7280;
+}
+
+.tm-btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.tm-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.team-actions-card {
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.team-add-member-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 720px;
+}
+
+.team-add-member-row label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.team-add-member-label {
+  white-space: nowrap;
+}
+
+.tm-dropdown {
+  position: relative;
+  flex: 1;
+  max-width: 520px;
+  min-width: 0;
+}
+
+.tm-dropdown-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tm-dropdown-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.tm-dropdown-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tm-dropdown-trigger-placeholder {
+  color: #6b7280;
+}
+
+.tm-dropdown-trigger-value {
+  color: #111827;
+}
+
+.tm-dropdown-chevron {
+  color: #6b7280;
+  line-height: 1;
+}
+
+.tm-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 6px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  max-height: 260px;
+  overflow: auto;
+  z-index: 50;
+}
+
+.tm-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+}
+
+.tm-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.tm-dropdown-item.is-selected {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.tm-dropdown-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.tm-dropdown-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.team-add-member-empty {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.team-edit-header {
+  margin: 16px 0 10px;
+}
+
+.team-edit-header .section-title {
+  margin: 0;
+}
+
+.team-edit-subtitle {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.team-edit-fields {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+}
+
+.team-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 720px;
+}

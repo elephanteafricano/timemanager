@@ -1,18 +1,26 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { isManagerRole } from '../utils/roles';
 import './Sidebar.css';
-import HomeIcon from '../assets/svgs/home.svg';
+import ClockIcon from '../assets/svgs/clock.svg';
 import DataIcon from '../assets/svgs/data.svg';
 import ProfileIcon from '../assets/svgs/profile.svg';
+import TeamIcon from '../assets/svgs/teamsvg.svg';
+import UserIcon from '../assets/svgs/user.svg';
 
 function Sidebar({ user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isManager = isManagerRole(user);
 
   const menuItems = [
-    { path: '/home', label: 'Home', icon: HomeIcon },
-    { path: '/data', label: 'Data', icon: DataIcon },
-    { path: '/profile', label: 'Profile', icon: ProfileIcon },
+    { path: '/dashboard', label: 'Dashboard', icon: DataIcon },
+    { path: '/clocking', label: 'Clocking', icon: ClockIcon },
+    ...(isManager ? [
+      { path: '/teams', label: 'Teams', icon: TeamIcon },
+      { path: '/users', label: 'Users', icon: UserIcon },
+      { path: '/rules', label: 'Rules', icon: ProfileIcon },
+    ] : []),
   ];
 
   return (
@@ -39,12 +47,29 @@ function Sidebar({ user, onLogout }) {
       <div className="sidebar-footer">
         {user && (
           <div className="sidebar-user">
-            <div className="user-avatar">{user.username?.[0]?.toUpperCase()}</div>
+            <img
+              className="sidebar-avatar"
+              src="/images/avatar.png"
+              alt=""
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '9999px',
+                objectFit: 'cover',
+                display: 'block',
+                flexShrink: 0,
+              }}
+            />
             <div className="user-info">
               <div className="user-name">{user.username}</div>
               <div className="user-role">{user.role}</div>
             </div>
           </div>
+        )}
+        {isManager && (
+          <button onClick={() => navigate('/profile')} className="sidebar-logout">
+            Profile
+          </button>
         )}
         <button onClick={onLogout} className="sidebar-logout">
           Logout

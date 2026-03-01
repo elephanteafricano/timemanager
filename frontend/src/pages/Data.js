@@ -1,97 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import useData from '../hooks/useData';
-import tokenService from '../services/tokenService';
+import useCurrentUser from '../hooks/useCurrentUser';
 import { isManagerRole } from '../utils/roles';
-import usersService from '../services/users.service';
 import teamsService from '../services/teams.service';
 import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
-import UserForm from '../components/UserForm';
 import TeamForm from '../components/TeamForm';
-import KeyIndicators from '../components/KeyIndicators';
-import TeamOverview from '../components/TeamOverview';
-import UsersSection from '../components/UsersSection';
 import TeamsSection from '../components/TeamsSection';
-import ClocksSection from '../components/ClocksSection';
-import ReportsSection from '../components/ReportsSection';
-import AdvancedKPIs from '../components/AdvancedKPIs';
 import './Data.css';
 
-function Data() {
+function Data({ mode = 'dashboard' }) {
   const backgroundUrl = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
-  const [user, setUser] = useState(null);
-  const [showUserModal, setShowUserModal] = useState(false);
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [showTeamModal, setShowTeamModal] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [editingTeam, setEditingTeam] = useState(null);
-  const [userFormLoading, setUserFormLoading] = useState(false);
   const [teamFormLoading, setTeamFormLoading] = useState(false);
+  const [teamFormData, setTeamFormData] = useState({
+    name: '',
+    description: '',
+    userIds: [],
+  });
   const [formError, setFormError] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { users, teams, clocks, reports, kpiData, loading, error } = useData(refreshTrigger);
-
-  const kpis = kpiData?.userKpis || {
-    totalShifts: 0,
-    averageShiftLength: 0,
-    longestShift: 0,
-    shortestShift: 0,
-    latenessRate: 0,
-    weeklyAverage: 0,
-    mostActiveDay: 'N/A',
-    onTimeRate: 0,
-    earlyDepartureRate: 0,
-    overtimeHours: 0,
-    scheduleComplianceRate: 0,
-    averageArrivalTime: 'N/A',
-    averageDepartureTime: 'N/A',
-    totalWorkingHours: 0,
-    expectedHours: 0,
-    hoursVariance: 0,
-  };
-
-  const chartData = kpiData?.chartData || {
-    monthlyHours: [],
-    attendanceTrend: [],
-    productivityScore: 0,
-    userHours: [],
-  };
-
-  useEffect(() => {
-    const userData = tokenService.getUser();
-    if (userData) {
-      setUser(userData);
-    }
-  }, [navigate]);
-
-  const handleCreateUser = async (formData) => {
-    if (!isManager) {
-      setFormError('Only managers can create or edit users');
-      return;
-    }
-
-    setUserFormLoading(true);
-    setFormError('');
-
-    try {
-      if (editingUser) {
-        await usersService.updateUser(editingUser.id, formData);
-      } else {
-        await usersService.createUser(formData);
-      }
-      setShowUserModal(false);
-      setEditingUser(null);
-      setRefreshTrigger(prev => prev + 1);
-    } catch (err) {
-      setFormError(err.response?.data?.message || err.message);
-    } finally {
-      setUserFormLoading(false);
-    }
-  };
+  const { users, allUsers, teams, reports, kpiData, loading, error } = useData(isUserLoading ? undefined : user, refreshTrigger);
 
   const confirmAndDelete = async ({ confirmMessage, action, onSuccess }) => {
     if (!window.confirm(confirmMessage)) {
@@ -106,20 +41,7 @@ function Data() {
     }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (!isManager) {
-      setFormError('Only managers can delete users');
-      return;
-    }
-
-    confirmAndDelete({
-      confirmMessage: 'Are you sure you want to delete this user?',
-      action: () => usersService.deleteUser(userId),
-      onSuccess: () => setRefreshTrigger(prev => prev + 1),
-    });
-  };
-
-  const handleCreateTeam = async (formData) => {
+  const handleCreateTeam = async () => {
     if (!isManager) {
       setFormError('Only managers can create or edit teams');
       return;
@@ -129,29 +51,18 @@ function Data() {
     setFormError('');
 
     try {
-      let teamId;
-      if (editingTeam) {
-        await teamsService.updateTeam(editingTeam.id, { 
-          name: formData.name,
-          description: formData.description,
-          manager_id: formData.manager_id
-        });
-        teamId = editingTeam.id;
-      } else {
-        const newTeam = await teamsService.createTeam({
-          name: formData.name,
-          description: formData.description,
-          manager_id: formData.manager_id
-        });
-        teamId = newTeam.id;
-      }
+      const newTeamResponse = await teamsService.createTeam({
+        name: teamFormData.name,
+        description: teamFormData.description,
+        manager_id: user.id,
+      });
+      const teamId = newTeamResponse.data?.id;
 
-      if (formData.userIds && formData.userIds.length > 0) {
-        await teamsService.updateTeamMembers(teamId, formData.userIds);
+      if (teamId && teamFormData.userIds && teamFormData.userIds.length > 0) {
+        await teamsService.updateTeamMembers(teamId, teamFormData.userIds);
       }
 
       setShowTeamModal(false);
-      setEditingTeam(null);
       setRefreshTrigger(prev => prev + 1);
     } catch (err) {
       setFormError(err.response?.data?.message || err.message);
@@ -173,20 +84,21 @@ function Data() {
     });
   };
 
+  if (isUserLoading) return null;
   if (!user) return null;
 
   const isManager = isManagerRole(user);
-  const teamName = isManager
-    ? (kpiData?.teamOverview?.teamName || (teams.length > 0 ? teams[0].name : 'No team'))
-    : null;
 
-  const employeeStats = isManager ? (kpiData?.teamOverview?.employeeStats || []) : [];
-  const globalStats = isManager ? (kpiData?.teamOverview?.globalStats || {
-    totalEmployees: 0,
-    currentlyClockedIn: 0,
-    avgLateRate: '0.0',
-    employeesWithIssues: 0,
-  }) : null;
+  const isDashboardView = mode === 'dashboard';
+  const isTeamsView = mode === 'teams';
+
+  const pageTitle = isTeamsView
+      ? 'Teams'
+      : 'Data Dashboard';
+  const pageSubtitle = isTeamsView
+      ? 'Manage teams in your scope.'
+      : 'View and manage your time tracking data.';
+  const reportKpis = kpiData?.userKpis || {};
 
   return (
     <div className="dashboard tm-shell">
@@ -196,11 +108,11 @@ function Data() {
       <div className="dashboard-content tm-panel">
         <header className="dashboard-header">
           <div>
-            <h1 className="dashboard-greeting">Data Dashboard</h1>
-            <p className="dashboard-subtitle">View and manage your time tracking data.</p>
+            <h1 className="dashboard-greeting">{pageTitle}</h1>
+            <p className="dashboard-subtitle">{pageSubtitle}</p>
           </div>
-          <button onClick={() => navigate('/home')} className="btn-secondary">
-            Back to Home
+          <button onClick={() => navigate('/clocking')} className="btn-secondary">
+            Back to Clocking
           </button>
         </header>
 
@@ -210,70 +122,71 @@ function Data() {
 
         {!loading && !error && (
           <>
-            {isManager && (
-              <TeamOverview 
-                teamName={teamName}
-                employeeStats={employeeStats}
-                globalStats={globalStats}
-              />
+            {isDashboardView && (
+              <section className="data-section">
+                <h2 className="section-title">KPI Report</h2>
+                <div className="table-container tm-card">
+                  <table className="employee-table">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Total worked hours</td>
+                        <td>{Number.isFinite(reports?.totalHours) ? `${reports.totalHours}h` : '--'}</td>
+                      </tr>
+                      <tr>
+                        <td>Average worked hours / day</td>
+                        <td>{Number.isFinite(reports?.averageDailyHours) ? `${reports.averageDailyHours}h` : '--'}</td>
+                      </tr>
+                      <tr>
+                        <td>Lateness rate</td>
+                        <td>{Number.isFinite(reportKpis.latenessRate) ? `${reportKpis.latenessRate}%` : '--'}</td>
+                      </tr>
+                      <tr>
+                        <td>Overtime</td>
+                        <td>{Number.isFinite(reportKpis.overtimeHours) ? `${reportKpis.overtimeHours}h` : '--'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             )}
 
-            <KeyIndicators chartData={chartData} />
-
-            {isManager && (
-              <UsersSection
-                users={users}
-                currentUser={user}
-                isManager={isManager}
-                onEditUser={(u) => { setEditingUser(u); setShowUserModal(true); }}
-                onDeleteUser={handleDeleteUser}
-                onAddUser={() => { setEditingUser(null); setShowUserModal(true); }}
-              />
-            )}
-
-            {isManager && (
+            {isManager && isTeamsView && (
               <TeamsSection
                 teams={teams}
+                users={allUsers}
                 isManager={isManager}
-                onEditTeam={(t) => { setEditingTeam(t); setShowTeamModal(true); }}
+                onViewTeam={(team) => navigate(`/teams/${team.id}`)}
                 onDeleteTeam={handleDeleteTeam}
-                onAddTeam={() => { setEditingTeam(null); setShowTeamModal(true); }}
+                onAddTeam={() => {
+                  setTeamFormData({
+                    name: '',
+                    description: '',
+                    userIds: [],
+                  });
+                  setShowTeamModal(true);
+                }}
               />
             )}
-
-            <ClocksSection clocks={clocks} />
-
-            <ReportsSection reports={reports} />
-
-            <AdvancedKPIs kpis={kpis} />
           </>
         )}
       </div>
 
       <Modal
-        isOpen={showUserModal}
-        title={editingUser ? 'Edit User' : 'Create New User'}
-        onClose={() => { setShowUserModal(false); setEditingUser(null); }}
-        onSubmit={handleCreateUser}
-        hideSubmitButton={true}
-      >
-        <UserForm 
-          user={editingUser} 
-          onSubmit={handleCreateUser}
-          loading={userFormLoading}
-        />
-      </Modal>
-
-      <Modal
         isOpen={showTeamModal}
-        title={editingTeam ? 'Edit Team' : 'Create New Team'}
-        onClose={() => { setShowTeamModal(false); setEditingTeam(null); }}
+        title="Create New Team"
+        onClose={() => { setShowTeamModal(false); }}
         onSubmit={handleCreateTeam}
       >
         <TeamForm 
-          team={editingTeam} 
+          team={null}
           users={users}
-          onSubmit={handleCreateTeam}
+          onChange={setTeamFormData}
           loading={teamFormLoading}
         />
       </Modal>

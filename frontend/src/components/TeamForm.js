@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { applyFieldChange } from '../utils/forms';
 import './TeamForm.css';
 
-function TeamForm({ team, users, loading }) {
+function TeamForm({ team, users, loading, onChange }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    manager_id: '',
     userIds: [],
   });
   const [error, setError] = useState('');
@@ -24,11 +23,16 @@ function TeamForm({ team, users, loading }) {
       setFormData({
         name: team.name || '',
         description: team.description || '',
-        manager_id: team.manager_id || '',
         userIds: memberIds.length > 0 ? memberIds : userIds,
       });
     }
   }, [team]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(formData);
+    }
+  }, [formData, onChange]);
 
   const handleChange = (e) => {
     applyFieldChange({
@@ -74,18 +78,6 @@ function TeamForm({ team, users, loading }) {
           placeholder="Enter team description (optional)"
           rows="3"
         />
-      </div>
-
-      <div className="form-group">
-        <label>Manager</label>
-        <select name="manager_id" value={formData.manager_id} onChange={handleChange}>
-          <option value="">Select a manager</option>
-          {validUsers.filter(u => u.role === 'manager').map(u => (
-            <option key={u.id} value={u.id}>
-              {u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.username}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className="form-group">

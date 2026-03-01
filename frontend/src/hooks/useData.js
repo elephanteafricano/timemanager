@@ -4,10 +4,10 @@ import usersService from '../services/users.service';
 import teamsService from '../services/teams.service';
 import clocksService from '../services/clocks.service';
 import reportsService from '../services/reports.service';
-import tokenService from '../services/tokenService';
 import { buildDateRange } from '../utils/dateFormat';
+import { getApiErrorMessage } from '../utils/apiError';
 import {
-  buildChartDataFromClocks,
+  buildChartDataFromResponse,
   buildReportsSummaryFromResponse,
   buildTeamOverviewFromResponse,
   filterClocksByRange,
@@ -15,8 +15,9 @@ import {
   toUiClock,
 } from '../utils/reportMappers';
 
-function useData(refreshTrigger = 0) {
+function useData(currentUser, refreshTrigger = 0) {
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [clocks, setClocks] = useState([]);
   const [reports, setReports] = useState({
@@ -30,12 +31,14 @@ function useData(refreshTrigger = 0) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!tokenService.isAuthenticated()) {
-      navigate('/login');
+    if (currentUser === undefined) {
       return;
     }
 
-    const currentUser = tokenService.getUser();
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
 
     const fetchData = async () => {
       try {
@@ -55,12 +58,13 @@ function useData(refreshTrigger = 0) {
         const [usersRes, teamsRes] = await Promise.all(basePromises);
         const usersData = Array.isArray(usersRes.data) ? usersRes.data : [usersRes.data];
         const teamsData = Array.isArray(teamsRes.data) ? teamsRes.data : [];
+        setAllUsers(usersData);
         let scopedUsers = usersData;
         let scopedTeams = teamsData;
         let fallbackTeamName = null;
 
         if (currentUser.role === 'manager') {
-          scopedTeams = teamsData.filter((team) => team.manager_id === currentUser.id);
+          scopedTeams = teamsData;
           fallbackTeamName = scopedTeams.length > 0 ? scopedTeams[0].name : null;
           const membersById = new Map();
           scopedTeams.forEach((team) => {
@@ -70,6 +74,15 @@ function useData(refreshTrigger = 0) {
               }
             });
           });
+          usersData
+            .filter((user) =>
+              user?.role === 'employee' &&
+              (user.team_id === null || user.team_id === undefined))
+            .forEach((user) => {
+              if (user?.id && !membersById.has(user.id)) {
+                membersById.set(user.id, user);
+              }
+            });
           scopedUsers = Array.from(membersById.values());
         } else {
           const employeeTeam = teamsData.find((team) =>
@@ -109,19 +122,18 @@ function useData(refreshTrigger = 0) {
         setReports(buildReportsSummaryFromResponse(reportPayload));
         setKpiData({
           userKpis: mapUserKpisFromResponse(reportPayload),
-          chartData: buildChartDataFromClocks(dashboardClocks, scopedUsers),
+          chartData: buildChartDataFromResponse(reportPayload),
           teamOverview: currentUser.role === 'manager'
             ? buildTeamOverviewFromResponse({
               reportPayload,
               users: scopedUsers,
-              clocks: dashboardClocks,
               fallbackTeamName,
             })
             : null,
         });
         setClocks(dashboardClocks.map(toUiClock));
       } catch (err) {
-        const msg = err.response?.data?.error?.message || err.message || 'Failed to load data';
+        const msg = getApiErrorMessage(err, 'Failed to load data');
         setError(msg);
       } finally {
         setLoading(false);
@@ -129,7 +141,7 @@ function useData(refreshTrigger = 0) {
     };
 
     fetchData();
-  }, [navigate, refreshTrigger]);
+  }, [currentUser, navigate, refreshTrigger]);
 
   const fetchUserReport = async (userId) => {
     const range = buildDateRange();
@@ -151,7 +163,7 @@ function useData(refreshTrigger = 0) {
     };
   };
 
-  return { users, teams, clocks, reports, kpiData, loading, error, fetchUserReport };
+  return { users, allUsers, teams, clocks, reports, kpiData, loading, error, fetchUserReport };
 }
 
 export default useData;

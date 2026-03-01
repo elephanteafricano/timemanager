@@ -1,0 +1,170 @@
+.tm-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.tm-input:focus {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.tm-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.tm-btn-primary {
+  background: #b7b7b7;
+  color: #1a1a1a;
+}
+
+.tm-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tm-btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.tm-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tm-badge-green {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+}
+
+.tm-badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+.tm-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tm-table thead {
+  background: #f5f5f5;
+}
+
+.tm-table th,
+.tm-table td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.tm-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tm-table td {
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.tm-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.tm-table-empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+.tm-cell-center {
+  text-align: center;
+}
+
+.tm-cell-right {
+  text-align: right;
+}
+
+.tm-actions-wrap {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.tm-th-center {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.tm-th-right {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.tm-team-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tm-team-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+}
+
+.tm-team-icon-wrap img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.tm-team-name {
+  display: block;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tm-team-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7280;
+}

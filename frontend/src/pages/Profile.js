@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import tokenService from '../services/tokenService';
+import useCurrentUser from '../hooks/useCurrentUser';
 import Sidebar from '../components/Sidebar';
 import { applyFieldChange } from '../utils/forms';
 import './Profile.css';
 import usersService from '../services/users.service';
 
 function Profile() {
-  const [user, setUser] = useState(null);
+  const { user, isLoading: isUserLoading } = useCurrentUser();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,17 +23,17 @@ function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = tokenService.getUser();
-    if (userData) {
-      setUser(userData);
-      setFormData({
-        first_name: userData.first_name || '',
-        last_name: userData.last_name || '',
-        email: userData.email || '',
-        phone_number: userData.phone_number || '',
-      });
+    if (!user) {
+      return;
     }
-  }, [navigate]);
+
+    setFormData({
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      email: user.email || '',
+      phone_number: user.phone_number || '',
+    });
+  }, [user]);
 
   const handleChange = (e) => {
     applyFieldChange({
@@ -84,6 +84,7 @@ function Profile() {
     }
   };
 
+  if (isUserLoading) return null;
   if (!user) return null;
 
   return (

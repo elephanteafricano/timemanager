@@ -1,8 +1,5 @@
 import { toValidDate } from './date';
-import { toDateOnlyString } from './dateFormat';
 import { toNumber, toHours } from './numberFormat';
-
-const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 export const toUiClock = (clock) => {
   const clockIn = clock?.clock_in ? new Date(clock.clock_in) : null;
@@ -30,106 +27,84 @@ export const filterClocksByRange = (clocks, fromDate, toDate) =>
     return clockIn && clockIn >= fromDate && clockIn <= toDate;
   });
 
-const getWorkedSeconds = (clock) => {
-  const clockIn = toValidDate(clock?.clock_in);
-  const clockOut = toValidDate(clock?.clock_out);
-  if (!clockIn || !clockOut || clockOut <= clockIn) return 0;
-  return Math.floor((clockOut - clockIn) / 1000);
+const toHoursRounded = (secondsValue) => Number(toHours(toNumber(secondsValue)).toFixed(2));
+const toPercentRounded = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Number(parsed.toFixed(1)) : null;
+};
+const toOptionalHours = (secondsValue) => {
+  if (secondsValue === null || secondsValue === undefined || secondsValue === '') {
+    return null;
+  }
+  return toHoursRounded(secondsValue);
+};
+const toOptionalCount = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.round(parsed) : null;
+};
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const toTrendValue = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 0;
+  return clamp(Math.round(parsed), 0, 25);
 };
 
 export const buildReportsSummaryFromResponse = (reportPayload) => {
   const reportKpis = reportPayload?.kpis || {};
-  const totalWorkedSeconds = toNumber(reportKpis.totalWorkedSeconds);
-  const avgWorkedSecondsPerDay = toNumber(reportKpis.avgWorkedSecondsPerDay);
-  const workDays = avgWorkedSecondsPerDay > 0
-    ? totalWorkedSeconds / avgWorkedSecondsPerDay
-    : 0;
 
   return {
-    totalHours: Number(toHours(totalWorkedSeconds).toFixed(2)),
-    averageDailyHours: Number(toHours(avgWorkedSecondsPerDay).toFixed(2)),
-    workDays: Math.round(workDays),
+    totalHours: toHoursRounded(reportKpis.totalWorkedSeconds),
+    averageDailyHours: toHoursRounded(reportKpis.avgWorkedSecondsPerDay),
+    workDays: toOptionalCount(reportKpis.workDays) || 0,
   };
 };
 
 export const mapUserKpisFromResponse = (reportPayload) => {
   const reportKpis = reportPayload?.kpis || {};
-  const totalWorkedSeconds = toNumber(reportKpis.totalWorkedSeconds);
-  const avgWorkedSecondsPerDay = toNumber(reportKpis.avgWorkedSecondsPerDay);
-  const latenessRate = toNumber(reportKpis.latenessRate);
-  const overtimeSeconds = toNumber(reportKpis.overtimeSeconds);
-  const totalHours = toHours(totalWorkedSeconds);
-  const averageDailyHours = toHours(avgWorkedSecondsPerDay);
-  const workDays = avgWorkedSecondsPerDay > 0
-    ? totalWorkedSeconds / avgWorkedSecondsPerDay
-    : 0;
-  const expectedHours = workDays * 8;
-  const onTimeRate = Math.max(0, 100 - latenessRate);
 
   return {
-    totalShifts: Math.round(workDays),
-    averageShiftLength: Number(averageDailyHours.toFixed(2)),
-    longestShift: 0,
-    shortestShift: 0,
-    latenessRate: Number(latenessRate.toFixed(1)),
-    weeklyAverage: Number((averageDailyHours * 5).toFixed(2)),
-    mostActiveDay: 'N/A',
-    onTimeRate: Number(onTimeRate.toFixed(1)),
-    earlyDepartureRate: 0,
-    overtimeHours: Number(toHours(overtimeSeconds).toFixed(2)),
-    scheduleComplianceRate: Number(onTimeRate.toFixed(1)),
-    averageArrivalTime: 'N/A',
-    averageDepartureTime: 'N/A',
-    totalWorkingHours: Number(totalHours.toFixed(2)),
-    expectedHours: Number(expectedHours.toFixed(2)),
-    hoursVariance: Number((totalHours - expectedHours).toFixed(2)),
+    totalShifts: toOptionalCount(reportKpis.totalShifts) || 0,
+    averageShiftLength: toHoursRounded(reportKpis.avgWorkedSecondsPerDay),
+    longestShift: toOptionalHours(reportKpis.longestShiftSeconds),
+    shortestShift: toOptionalHours(reportKpis.shortestShiftSeconds),
+    latenessRate: toPercentRounded(reportKpis.latenessRate),
+    weeklyAverage: toOptionalHours(reportKpis.weeklyAverageSeconds),
+    mostActiveDay: reportKpis.mostActiveDay || 'N/A',
+    onTimeRate: toPercentRounded(reportKpis.onTimeRate),
+    earlyDepartureRate: toPercentRounded(reportKpis.earlyDepartureRate),
+    overtimeHours: toHoursRounded(reportKpis.overtimeSeconds),
+    scheduleComplianceRate: toPercentRounded(reportKpis.scheduleComplianceRate),
+    averageArrivalTime: reportKpis.averageArrivalTime || 'N/A',
+    averageDepartureTime: reportKpis.averageDepartureTime || 'N/A',
+    totalWorkingHours: toHoursRounded(reportKpis.totalWorkedSeconds),
+    expectedHours: toOptionalHours(reportKpis.expectedSeconds),
+    hoursVariance: toOptionalHours(reportKpis.hoursVarianceSeconds),
   };
 };
 
-export const buildTeamOverviewFromResponse = ({ reportPayload, users, clocks, fallbackTeamName }) => {
+export const buildTeamOverviewFromResponse = ({ reportPayload, users, fallbackTeamName }) => {
   const teams = Array.isArray(reportPayload?.teams) ? reportPayload.teams : [];
-  const openClockUserIds = new Set(
-    (Array.isArray(clocks) ? clocks : [])
-      .filter((clock) => clock?.clock_in && !clock?.clock_out)
-      .map((clock) => Number(clock.user_id))
-      .filter(Number.isFinite)
-  );
+  const reportKpis = reportPayload?.kpis || {};
 
   const employeeStats = teams.map((team) => {
     const teamKpis = team?.kpis || {};
-    const totalWorkedSeconds = toNumber(teamKpis.teamTotalWorkedSeconds);
-    const avgWorkedSecondsPerDay = toNumber(teamKpis.teamAvgWorkedSecondsPerDay);
-    const latenessRate = toNumber(teamKpis.latenessRate);
+    const latenessRate = toPercentRounded(teamKpis.latenessRate) || 0;
     const latenessCount = Math.round(toNumber(teamKpis.latenessCount));
-    const workDays = avgWorkedSecondsPerDay > 0
-      ? totalWorkedSeconds / avgWorkedSecondsPerDay
-      : 0;
     const status = latenessRate > 20 ? 'warning' : latenessRate > 10 ? 'attention' : 'good';
-    const teamId = Number(team.teamId);
-    const teamUserIds = (Array.isArray(users) ? users : [])
-      .filter((user) => Number(user.team_id) === teamId)
-      .map((user) => Number(user.id));
-
-    const isClockedIn = teamUserIds.some((userId) => openClockUserIds.has(userId));
 
     return {
-      id: teamId,
+      id: Number(team.teamId),
       name: team.teamName || `Team #${team.teamId}`,
       email: '-',
-      totalShifts: Math.round(workDays),
+      totalShifts: toOptionalCount(teamKpis.totalShifts) || 0,
       lateArrivals: latenessCount,
       lateRate: latenessRate.toFixed(1),
-      earlyDepartures: 0,
-      avgHours: toHours(avgWorkedSecondsPerDay).toFixed(1),
-      isClockedIn,
+      earlyDepartures: toOptionalCount(teamKpis.earlyDepartureCount) || 0,
+      avgHours: toHours(toNumber(teamKpis.teamAvgWorkedSecondsPerDay)).toFixed(1),
+      isClockedIn: false,
       status,
     };
   });
-
-  const lateRateValues = employeeStats.map((employee) => Number(employee.lateRate));
-  const averageLateRate = lateRateValues.length > 0
-    ? (lateRateValues.reduce((sum, value) => sum + value, 0) / lateRateValues.length)
-    : 0;
 
   const teamName = employeeStats.length === 1
     ? employeeStats[0].name
@@ -140,85 +115,79 @@ export const buildTeamOverviewFromResponse = ({ reportPayload, users, clocks, fa
     employeeStats,
     globalStats: {
       totalEmployees: Array.isArray(users) ? users.length : 0,
-      currentlyClockedIn: Array.isArray(users)
-        ? users.filter((user) => openClockUserIds.has(Number(user.id))).length
-        : 0,
-      avgLateRate: averageLateRate.toFixed(1),
+      currentlyClockedIn: 0,
+      avgLateRate: (toPercentRounded(reportKpis.latenessRate) || 0).toFixed(1),
       employeesWithIssues: employeeStats.filter((employee) => employee.status !== 'good').length,
     },
   };
 };
 
-export const buildChartDataFromClocks = (clocks, users) => {
-  const monthlyMap = new Map();
-  const now = new Date();
+export const buildChartDataFromResponse = (reportPayload) => {
+  const reportKpis = reportPayload?.kpis || {};
+  const teams = Array.isArray(reportPayload?.teams) ? reportPayload.teams : [];
 
-  for (let index = 5; index >= 0; index -= 1) {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - index, 1);
-    const monthKey = MONTH_NAMES[monthDate.getMonth()];
-    monthlyMap.set(monthKey, { hours: 0, days: new Set() });
+  const teamHours = teams
+    .map((team) => ({
+      id: Number(team.teamId),
+      name: team.teamName || `Team #${team.teamId}`,
+      hours: Math.round(toHours(toNumber(team?.kpis?.teamTotalWorkedSeconds))),
+      latenessRate: toNumber(team?.kpis?.latenessRate),
+    }))
+    .filter((entry) => Number.isFinite(entry.id));
+
+  const fallbackTotalHours = Math.round(toHours(toNumber(reportKpis.totalWorkedSeconds)));
+  const fallbackAvgHours = Math.round(toHours(toNumber(reportKpis.avgWorkedSecondsPerDay)));
+
+  let monthlyHours = teamHours.slice(0, 6).map((entry) => ({
+    month: entry.name.slice(0, 3).toUpperCase(),
+    hours: entry.hours,
+  }));
+  if (monthlyHours.length === 0) {
+    monthlyHours = [
+      { month: 'TOT', hours: fallbackTotalHours },
+      { month: 'AVG', hours: fallbackAvgHours },
+    ];
+  } else if (monthlyHours.length === 1) {
+    monthlyHours = [...monthlyHours, { ...monthlyHours[0], month: 'AVG' }];
+  }
+  const maxMonthlyHours = Math.max(...monthlyHours.map((entry) => entry.hours), 1);
+  monthlyHours = monthlyHours.map((entry) => ({ ...entry, maxHours: maxMonthlyHours }));
+
+  const globalLateness = toTrendValue(reportKpis.latenessRate);
+  let attendanceTrend = teamHours
+    .slice(0, 6)
+    .map((entry) => ({
+      month: entry.name.slice(0, 3).toUpperCase(),
+      actual: toTrendValue(entry.latenessRate),
+      expected: globalLateness,
+    }));
+  if (attendanceTrend.length === 0) {
+    attendanceTrend = [
+      { month: 'KPI', actual: globalLateness, expected: globalLateness },
+      { month: 'NOW', actual: globalLateness, expected: globalLateness },
+    ];
+  } else if (attendanceTrend.length === 1) {
+    attendanceTrend = [...attendanceTrend, { ...attendanceTrend[0], month: 'NOW' }];
   }
 
-  const userHoursMap = new Map();
-  (Array.isArray(users) ? users : []).forEach((user) => {
-    const name = [user.first_name, user.last_name].filter(Boolean).join(' ')
-      || user.username
-      || `User #${user.id}`;
-    userHoursMap.set(Number(user.id), { id: Number(user.id), name, hours: 0 });
-  });
-
-  (Array.isArray(clocks) ? clocks : []).forEach((clock) => {
-    const clockIn = toValidDate(clock?.clock_in);
-    if (!clockIn) return;
-
-    const monthKey = MONTH_NAMES[clockIn.getMonth()];
-    const workedSeconds = getWorkedSeconds(clock);
-    const workedHours = workedSeconds / 3600;
-
-    if (monthlyMap.has(monthKey)) {
-      const bucket = monthlyMap.get(monthKey);
-      bucket.hours += workedHours;
-      if (workedSeconds > 0) {
-        bucket.days.add(toDateOnlyString(clockIn));
-      }
-    }
-
-    if (workedSeconds > 0) {
-      const userId = Number(clock.user_id);
-      if (!userHoursMap.has(userId)) {
-        userHoursMap.set(userId, { id: userId, name: `User #${userId}`, hours: 0 });
-      }
-      userHoursMap.get(userId).hours += workedHours;
-    }
-  });
-
-  const monthlyHours = Array.from(monthlyMap.entries()).map(([month, value]) => ({
-    month,
-    hours: Math.round(value.hours),
-    maxHours: 200,
-  }));
-
-  const attendanceTrend = Array.from(monthlyMap.entries()).map(([month, value]) => ({
-    month,
-    actual: value.days.size,
-    expected: 22,
-  }));
-
-  const totalHours = monthlyHours.reduce((sum, month) => sum + month.hours, 0);
-  const expectedHours = attendanceTrend.reduce((sum, month) => sum + (month.expected * 8), 0);
-  const productivityScore = expectedHours > 0
-    ? Math.min(100, Math.round((totalHours / expectedHours) * 100))
-    : 0;
-
-  const userHours = Array.from(userHoursMap.values())
-    .map((entry) => ({ ...entry, hours: Math.round(entry.hours) }))
+  const userHoursBase = teamHours.length > 0
+    ? teamHours
+    : [{ id: 0, name: 'Total', hours: fallbackTotalHours }];
+  const maxUserHours = Math.max(...userHoursBase.map((entry) => entry.hours), 1);
+  const userHours = userHoursBase
+    .map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      hours: entry.hours,
+      maxHours: maxUserHours,
+    }))
     .sort((left, right) => right.hours - left.hours)
     .slice(0, 6);
 
-  const maxHours = Math.max(...userHours.map((entry) => entry.hours), 1);
-  userHours.forEach((entry) => {
-    entry.maxHours = maxHours;
-  });
+  const rawProductivity = Number(reportKpis.productivityScore);
+  const productivityScore = Number.isFinite(rawProductivity)
+    ? clamp(Math.round(rawProductivity), 0, 100)
+    : clamp(Math.round(toNumber(reportKpis.latenessRate)), 0, 100);
 
   return {
     monthlyHours,

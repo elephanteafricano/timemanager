@@ -20,6 +20,7 @@ docker compose --profile dev up
 
 # Or production mode
 docker compose -f compose.prod.yml up -d --build
+docker compose -f compose.prod.yml ps
 
 # Test health via Nginx
 curl http://localhost:8080/api/health
@@ -369,6 +370,25 @@ docker compose down
 
 # Remove volumes (reset DB)
 docker compose down -v
+```
+
+> [!WARNING]
+> `docker compose down -v` removes the Postgres volume (`pgdata`) and wipes all database data (users, teams, roles/assignments).
+> Seeded accounts/teams are recreated only on a fresh database initialization; if no seed runs, you must register users again.
+> After a reset, logging in as a non-manager can show `Insufficient permissions` on `/users` and `/teams` because those routes are manager-restricted.
+
+Safe restart (keeps data):
+
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+Full reset (wipes data and reseeds on fresh init):
+
+```bash
+docker compose down -v
+docker compose up -d --build
 ```
 
 ## Project Structure

@@ -1,3 +1,5 @@
+import { getApiErrorMessage } from './apiError';
+
 export async function runAsyncAction({ setLoading, setError, action, onSuccess }) {
   setLoading(true);
   setError(null);
@@ -9,7 +11,7 @@ export async function runAsyncAction({ setLoading, setError, action, onSuccess }
     }
     return result;
   } catch (err) {
-    const message = err?.response?.data?.error?.message || err?.message;
+    const message = getApiErrorMessage(err);
     setError(message);
     return null;
   } finally {

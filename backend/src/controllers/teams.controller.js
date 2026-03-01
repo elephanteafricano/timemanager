@@ -1,4 +1,5 @@
 // Teams Controller
+const { Op } = require('sequelize');
 const { Team, User } = require('../models');
 const { asyncHandler, AppError } = require('../utils/errorHandler');
 const { findByIdOrFail, deleteResource, updateResource } = require('../utils/dbHelpers');
@@ -44,10 +45,24 @@ const updateTeamMembers = asyncHandler(async (req, res) => {
   const { userIds } = req.body;
   
   await findByIdOrFail(Team, id, 'Team');
-  
-  // Update all users in userIds array to belong to this team
-  if (userIds && Array.isArray(userIds)) {
-    await User.update({ team_id: id }, { where: { id: userIds } });
+
+  if (!Array.isArray(userIds)) {
+    throw new AppError('userIds must be an array', 400);
+  }
+
+  const nextUserIds = userIds
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value > 0);
+
+  // Unassign users removed from this team without deleting user records.
+  if (nextUserIds.length > 0) {
+    await User.update(
+      { team_id: null },
+      { where: { team_id: id, id: { [Op.notIn]: nextUserIds } } }
+    );
+    await User.update({ team_id: id }, { where: { id: nextUserIds } });
+  } else {
+    await User.update({ team_id: null }, { where: { team_id: id } });
   }
   
   res.json({ message: 'Team members updated successfully' });

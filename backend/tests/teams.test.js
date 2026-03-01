@@ -266,5 +266,38 @@ describe('Teams Endpoints', () => {
 
       expect(res.statusCode).toBe(404);
     });
+
+    it('should unassign removed member without deleting the user', async () => {
+      const tempUserRes = await request(app)
+        .post('/api/auth/register')
+        .send({
+          username: 'team_member_temp',
+          email: 'team_member_temp@example.com',
+          password: 'Password123',
+          first_name: 'Temp',
+          last_name: 'Member'
+        });
+
+      const tempUserId = tempUserRes.body.user.id;
+
+      const addRes = await request(app)
+        .put(`/api/teams/${teamId}/members`)
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ userIds: [tempUserId] });
+      expect(addRes.statusCode).toBe(200);
+
+      const removeRes = await request(app)
+        .put(`/api/teams/${teamId}/members`)
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ userIds: [] });
+      expect(removeRes.statusCode).toBe(200);
+
+      const userRes = await request(app)
+        .get(`/api/users/${tempUserId}`)
+        .set('Authorization', `Bearer ${managerToken}`);
+      expect(userRes.statusCode).toBe(200);
+      expect(userRes.body.id).toBe(tempUserId);
+      expect(userRes.body.team_id).toBeNull();
+    });
   });
 });

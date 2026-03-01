@@ -47,11 +47,7 @@ function useAuth() {
     navigate('/login');
   };
 
-  const getUser = () => {
-    return tokenService.getUser();
-  };
-
-  return { login, register, logout, getUser, loading, error };
+  return { login, register, logout, loading, error };
 }
 
 export default useAuth;
