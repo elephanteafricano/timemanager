@@ -17,6 +17,6 @@ router.get('/:id/clocks', (req, res, next) => {
 router.get('/:id', getUser);
 router.post('/', roleCheck([USER_ROLES.MANAGER]), createUser);
 router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.delete('/:id', roleCheck([USER_ROLES.MANAGER]), deleteUser);
 
 module.exports = router;

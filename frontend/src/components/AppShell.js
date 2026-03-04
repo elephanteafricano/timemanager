@@ -23,7 +23,9 @@ function AppShell() {
       <div className="tm-hero" style={{ backgroundImage: `url(${backgroundUrl})` }} aria-hidden="true" />
       <Sidebar user={user} onLogout={logout} />
       <div className="dashboard-content tm-panel">
-        <Outlet context={{ user }} />
+        <div className="tm-outlet">
+          <Outlet context={{ user }} />
+        </div>
       </div>
     </div>
   );

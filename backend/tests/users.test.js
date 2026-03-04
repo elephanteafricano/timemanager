@@ -190,13 +190,12 @@ describe('Users Endpoints', () => {
       expect(res.body.message).toContain('deleted');
     });
 
-    it('should allow employee to delete own account', async () => {
+    it('should reject employee deleting own account', async () => {
       const res = await request(app)
         .delete(`/api/users/${employeeId}`)
         .set('Authorization', `Bearer ${employeeToken}`);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.message).toContain('deleted');
+      expect(res.statusCode).toBe(403);
     });
 
     it('should reject employee deleting user', async () => {

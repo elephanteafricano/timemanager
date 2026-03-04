@@ -346,6 +346,48 @@ docker compose -f compose.prod.yml exec -T postgres psql -U admin -d timemanager
 # EXPECT: 1 (same value after restart, proving persistence)
 ```
 
+### Database seeding (Docker)
+
+Default seed data (from `docker/postgres/init/01_seed.sql`):
+- Users:
+  - `manager1` / `manager1@example.com` / `manager`
+  - `manager2` / `manager2@example.com` / `manager`
+  - `employee1` / `employee1@example.com` / `employee`
+  - `employee2` / `employee2@example.com` / `employee`
+  - `employee3` / `employee3@example.com` / `employee`
+  - `employee4` / `employee4@example.com` / `employee`
+- Teams:
+  - `Development Team`
+  - `Design Team`
+- Clocks/time records:
+  - No default `clocks` rows are inserted by the SQL seed file.
+
+When seeding runs:
+- Compose mounts `./docker/postgres/init` into `/docker-entrypoint-initdb.d` for Postgres.
+- With named volumes (`pgdata` / `pgdata_prod`), init scripts run on first database initialization only.
+- If the volume already exists, seed SQL does not run again automatically.
+
+Force reseed (destructive):
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+This removes Postgres volume data and recreates DB content from init scripts.
+
+Verify seeded data:
+
+```bash
+docker compose exec -T postgres psql -U admin -d timemanager -c "SELECT id, username, role, team_id FROM users ORDER BY id;"
+docker compose exec -T postgres psql -U admin -d timemanager -c "SELECT id, name, manager_id FROM teams ORDER BY id;"
+docker compose exec -T postgres psql -U admin -d timemanager -c "SELECT id, user_id, clock_in, clock_out FROM clocks ORDER BY id DESC LIMIT 20;"
+```
+
+Manual seed scripts:
+- `backend/scripts/seed-users.js` exists for manual execution only (not auto-run by compose/startup).
+- `backend/src/seed/seedUsers.js` exists but is env-gated (`SEED_DEFAULT_USERS`) and not wired into server startup.
+
 ### Mailpit (Fake Email)
 
 - Mailpit UI: `http://localhost:8025`
