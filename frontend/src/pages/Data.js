@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
 import useData from '../hooks/useData';
-import useCurrentUser from '../hooks/useCurrentUser';
+import useOutletUser from '../hooks/useOutletUser';
 import { isManagerRole } from '../utils/roles';
 import teamsService from '../services/teams.service';
-import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
 import TeamForm from '../components/TeamForm';
 import TeamsSection from '../components/TeamsSection';
 import './Data.css';
 
 function Data({ mode = 'dashboard' }) {
-  const backgroundUrl = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
-  const { user, isLoading: isUserLoading } = useCurrentUser();
+  const user = useOutletUser();
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamFormLoading, setTeamFormLoading] = useState(false);
   const [teamFormData, setTeamFormData] = useState({
@@ -23,10 +20,9 @@ function Data({ mode = 'dashboard' }) {
   });
   const [formError, setFormError] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
-  const { logout } = useAuth();
+
   const navigate = useNavigate();
-  const { users, allUsers, teams, reports, kpiData, loading, error } = useData(isUserLoading ? undefined : user, refreshTrigger);
+  const { users, allUsers, teams, reports, kpiData, loading, error } = useData(user, refreshTrigger);
 
   const confirmAndDelete = async ({ confirmMessage, action, onSuccess }) => {
     if (!window.confirm(confirmMessage)) {
@@ -84,9 +80,6 @@ function Data({ mode = 'dashboard' }) {
     });
   };
 
-  if (isUserLoading) return null;
-  if (!user) return null;
-
   const isManager = isManagerRole(user);
 
   const isDashboardView = mode === 'dashboard';
@@ -101,81 +94,76 @@ function Data({ mode = 'dashboard' }) {
   const reportKpis = kpiData?.userKpis || {};
 
   return (
-    <div className="dashboard tm-shell">
-      <div className="tm-hero" style={{ backgroundImage: `url(${backgroundUrl})` }} aria-hidden="true" />
-      <Sidebar user={user} onLogout={logout} />
-      
-      <div className="dashboard-content tm-panel">
-        <header className="dashboard-header">
-          <div>
-            <h1 className="dashboard-greeting">{pageTitle}</h1>
-            <p className="dashboard-subtitle">{pageSubtitle}</p>
-          </div>
-          <button onClick={() => navigate('/clocking')} className="btn-secondary">
-            Back to Clocking
-          </button>
-        </header>
+    <>
+      <header className="dashboard-header">
+        <div>
+          <h1 className="dashboard-greeting">{pageTitle}</h1>
+          <p className="dashboard-subtitle">{pageSubtitle}</p>
+        </div>
+        <button onClick={() => navigate('/clocking')} className="btn-secondary">
+          Back to Clocking
+        </button>
+      </header>
 
-        {loading && <div className="loading">Loading data...</div>}
-        {error && <div className="error">{error}</div>}
-        {formError && <div className="error">{formError}</div>}
+      {loading && <div className="loading">Loading data...</div>}
+      {error && <div className="error">{error}</div>}
+      {formError && <div className="error">{formError}</div>}
 
-        {!loading && !error && (
-          <>
-            {isDashboardView && (
-              <section className="data-section">
-                <h2 className="section-title">KPI Report</h2>
-                <div className="table-container tm-card">
-                  <table className="employee-table">
-                    <thead>
-                      <tr>
-                        <th>Metric</th>
-                        <th>Value</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Total worked hours</td>
-                        <td>{Number.isFinite(reports?.totalHours) ? `${reports.totalHours}h` : '--'}</td>
-                      </tr>
-                      <tr>
-                        <td>Average worked hours / day</td>
-                        <td>{Number.isFinite(reports?.averageDailyHours) ? `${reports.averageDailyHours}h` : '--'}</td>
-                      </tr>
-                      <tr>
-                        <td>Lateness rate</td>
-                        <td>{Number.isFinite(reportKpis.latenessRate) ? `${reportKpis.latenessRate}%` : '--'}</td>
-                      </tr>
-                      <tr>
-                        <td>Overtime</td>
-                        <td>{Number.isFinite(reportKpis.overtimeHours) ? `${reportKpis.overtimeHours}h` : '--'}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            )}
+      {!loading && !error && (
+        <>
+          {isDashboardView && (
+            <section className="data-section">
+              <h2 className="section-title">KPI Report</h2>
+              <div className="table-container tm-card">
+                <table className="employee-table">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Total worked hours</td>
+                      <td>{Number.isFinite(reports?.totalHours) ? `${reports.totalHours}h` : '--'}</td>
+                    </tr>
+                    <tr>
+                      <td>Average worked hours / day</td>
+                      <td>{Number.isFinite(reports?.averageDailyHours) ? `${reports.averageDailyHours}h` : '--'}</td>
+                    </tr>
+                    <tr>
+                      <td>Lateness rate</td>
+                      <td>{Number.isFinite(reportKpis.latenessRate) ? `${reportKpis.latenessRate}%` : '--'}</td>
+                    </tr>
+                    <tr>
+                      <td>Overtime</td>
+                      <td>{Number.isFinite(reportKpis.overtimeHours) ? `${reportKpis.overtimeHours}h` : '--'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
 
-            {isManager && isTeamsView && (
-              <TeamsSection
-                teams={teams}
-                users={allUsers}
-                isManager={isManager}
-                onViewTeam={(team) => navigate(`/teams/${team.id}`)}
-                onDeleteTeam={handleDeleteTeam}
-                onAddTeam={() => {
-                  setTeamFormData({
-                    name: '',
-                    description: '',
-                    userIds: [],
-                  });
-                  setShowTeamModal(true);
-                }}
-              />
-            )}
-          </>
-        )}
-      </div>
+          {isManager && isTeamsView && (
+            <TeamsSection
+              teams={teams}
+              users={allUsers}
+              isManager={isManager}
+              onViewTeam={(team) => navigate(`/teams/${team.id}`)}
+              onDeleteTeam={handleDeleteTeam}
+              onAddTeam={() => {
+                setTeamFormData({
+                  name: '',
+                  description: '',
+                  userIds: [],
+                });
+                setShowTeamModal(true);
+              }}
+            />
+          )}
+        </>
+      )}
 
       <Modal
         isOpen={showTeamModal}
@@ -183,14 +171,14 @@ function Data({ mode = 'dashboard' }) {
         onClose={() => { setShowTeamModal(false); }}
         onSubmit={handleCreateTeam}
       >
-        <TeamForm 
+        <TeamForm
           team={null}
           users={users}
           onChange={setTeamFormData}
           loading={teamFormLoading}
         />
       </Modal>
-    </div>
+    </>
   );
 }
 
