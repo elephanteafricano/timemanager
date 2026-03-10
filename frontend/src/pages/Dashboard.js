@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import useOutletUser from '../hooks/useOutletUser';
+import PageHeader from '../components/PageHeader';
 import '../styles/ui.css';
 import './Home.css';
 import './Dashboard.css';
@@ -30,12 +31,7 @@ function Dashboard() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">Dashboard</h1>
-          <p className="dashboard-subtitle">Track KPI and planning overview.</p>
-        </div>
-      </header>
+      <PageHeader title="Dashboard" subtitle="Track KPI and planning overview." />
 
       <section className="dash-filters">
         <label className="dash-filter-group" htmlFor="kpi-scope-select">

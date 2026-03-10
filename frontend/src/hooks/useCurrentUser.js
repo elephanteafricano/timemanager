@@ -6,7 +6,7 @@ function useCurrentUser() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setUser(tokenService.getUser() || null);
+    setUser(tokenService.getUser());
     setIsLoading(false);
   }, []);
 

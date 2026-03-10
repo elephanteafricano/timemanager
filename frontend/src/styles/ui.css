@@ -85,6 +85,11 @@
   vertical-align: middle;
 }
 
+.tm-table-compact th,
+.tm-table-compact td {
+  padding: 8px;
+}
+
 .tm-table th {
   text-align: left;
   font-weight: 600;
@@ -98,6 +103,11 @@
   font-size: 13px;
 }
 
+.tm-table-top-borders td {
+  border-top: 1px solid #e5e7eb;
+  border-bottom: none;
+}
+
 .tm-table tbody tr:hover {
   background: #f9f9f9;
 }
@@ -105,6 +115,94 @@
 .tm-table-empty {
   text-align: center;
   color: #6b7280;
+}
+
+.tm-table-empty-left {
+  text-align: left;
+}
+
+.tm-card-scroll {
+  overflow-x: auto;
+}
+
+.tm-card-pad-md {
+  padding: 16px;
+}
+
+.tm-card-pad-sm {
+  padding: 12px 16px;
+}
+
+.tm-w-full {
+  width: 100%;
+}
+
+.tm-split {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}
+
+.tm-split-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.tm-split-side {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.tm-users-table-card {
+  /* Uses tm-card-scroll tm-card-pad-sm tm-w-full utilities */
+}
+
+.tm-users-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tm-users-side-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.tm-users-form-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.tm-users-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.tm-users-manager-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tm-users-submit-row {
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .tm-split {
+    flex-direction: column;
+  }
+
+  .tm-split-side {
+    max-width: 100%;
+  }
 }
 
 .tm-cell-center {

@@ -3,6 +3,7 @@ import usersService from '../services/users.service';
 import clocksService from '../services/clocks.service';
 import { USER_ROLES } from '../constants/roles';
 import { getApiErrorMessage } from '../utils/apiError';
+import PageHeader from '../components/PageHeader';
 import './Home.css';
 import '../styles/ui.css';
 
@@ -101,12 +102,10 @@ function UsersPage() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">All users</h1>
-          <p className="dashboard-subtitle">Manage all users and create manager or employee accounts.</p>
-        </div>
-      </header>
+      <PageHeader
+        title="All users"
+        subtitle="Manage all users and create manager or employee accounts."
+      />
 
       {error && (
         <div style={{ marginBottom: '16px', color: '#b42318' }}>
@@ -114,41 +113,32 @@ function UsersPage() {
         </div>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'stretch',
-          gap: '24px',
-        }}
-      >
-        <section style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-          <div
-            className="tm-card"
-            style={{ overflowX: 'auto', padding: '12px 16px', width: '100%', height: '100%' }}
-          >
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="tm-split">
+        <section className="tm-split-main">
+          <div className="tm-card tm-users-table-card tm-card-scroll tm-card-pad-sm tm-w-full">
+            <table className="tm-table tm-table-compact tm-table-top-borders">
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>First name</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Last name</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Email</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Role</th>
-                  <th style={{ textAlign: 'left', padding: '8px' }}>Status</th>
+                  <th>First name</th>
+                  <th>Last name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {!loadingUsers && users.map((userRow) => (
                   <tr key={userRow.id}>
-                    <td style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <td>
+                      <div className="tm-users-name-cell">
                         <img className="tm-avatar" src="/images/avatar.png" alt="" />
                         <span>{userRow.first_name}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>{userRow.last_name}</td>
-                    <td style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>{userRow.email}</td>
-                    <td style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>{userRow.role}</td>
-                    <td style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>
+                    <td>{userRow.last_name}</td>
+                    <td>{userRow.email}</td>
+                    <td>{userRow.role}</td>
+                    <td>
                       {userRow.status === 'Online' ? (
                         <span className="tm-badge tm-badge-green">Online</span>
                       ) : (
@@ -159,7 +149,7 @@ function UsersPage() {
                 ))}
                 {!loadingUsers && users.length === 0 && (
                   <tr>
-                    <td colSpan={5} style={{ padding: '8px', borderTop: '1px solid #e5e7eb' }}>
+                    <td colSpan={5} className="tm-table-empty tm-table-empty-left">
                       No users found.
                     </td>
                   </tr>
@@ -170,10 +160,10 @@ function UsersPage() {
           </div>
         </section>
 
-        <section style={{ width: '100%', maxWidth: '460px', display: 'flex' }}>
-          <div className="tm-card" style={{ width: '100%', padding: '16px', display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '12px' }}>Create user</h2>
-            <form onSubmit={handleCreateUser} style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+        <section className="tm-split-side">
+          <div className="tm-card tm-users-side-card tm-card-pad-md tm-w-full">
+            <h2 className="tm-users-form-title">Create user</h2>
+            <form onSubmit={handleCreateUser} className="tm-users-form">
               <input
                 className="tm-input"
                 name="first_name"
@@ -223,7 +213,7 @@ function UsersPage() {
                 placeholder="Password"
                 required
               />
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label className="tm-users-manager-label">
                 <input
                   type="checkbox"
                   name="is_manager"
@@ -232,7 +222,7 @@ function UsersPage() {
                 />
                 Manager
               </label>
-              <div style={{ marginTop: 'auto', paddingTop: '4px' }}>
+              <div className="tm-users-submit-row">
                 <button type="submit" className="tm-btn tm-btn-primary" disabled={submitting}>
                   {submitting ? 'Creating...' : 'Create user'}
                 </button>

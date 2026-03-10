@@ -2,21 +2,19 @@ import React from 'react';
 import TeamIcon from '../assets/svgs/teamsvg.svg';
 import '../styles/ui.css';
 
-function TeamsSection({ teams, users = [], isManager, onDeleteTeam, onAddTeam, onViewTeam }) {
+function TeamsSection({ teams, users = [], onDeleteTeam, onAddTeam, onViewTeam }) {
   const safeTeams = teams.filter((team) => team && team.id);
 
   return (
     <section className="data-section">
       <div className="section-header">
         <h2 className="section-title">Teams ({teams.length})</h2>
-        {isManager && (
-          <button className="tm-btn tm-btn-primary" onClick={onAddTeam}>
-            + Add Team
-          </button>
-        )}
+        <button className="tm-btn tm-btn-primary" onClick={onAddTeam}>
+          + Add Team
+        </button>
       </div>
 
-      <div className="tm-card" style={{ overflowX: 'auto' }}>
+      <div className="tm-card tm-card-scroll">
         <table className="tm-table">
           <colgroup>
             <col />
@@ -68,18 +66,14 @@ function TeamsSection({ teams, users = [], isManager, onDeleteTeam, onAddTeam, o
                 <td>{managerName}</td>
                 <td className="tm-cell-center">{membersCount}</td>
                 <td className="tm-cell-right">
-                  {isManager ? (
-                    <div className="tm-actions-wrap">
-                      <button type="button" className="tm-btn tm-btn-primary" onClick={() => onViewTeam && onViewTeam(team)}>
-                        Members
-                      </button>
-                      <button type="button" className="tm-btn tm-btn-danger" onClick={() => onDeleteTeam(team.id)}>
-                        Delete
-                      </button>
-                    </div>
-                  ) : (
-                    '-'
-                  )}
+                  <div className="tm-actions-wrap">
+                    <button type="button" className="tm-btn tm-btn-primary" onClick={() => onViewTeam && onViewTeam(team)}>
+                      Members
+                    </button>
+                    <button type="button" className="tm-btn tm-btn-danger" onClick={() => onDeleteTeam(team.id)}>
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

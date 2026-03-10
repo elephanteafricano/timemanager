@@ -6,19 +6,19 @@ import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import UsersPage from './pages/UsersPage';
-import TeamsPage from './pages/TeamsPage';
+import Data from './pages/Data';
 import TeamDetailsPage from './pages/TeamDetailsPage';
 import RulesPage from './pages/RulesPage';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppShell from './components/AppShell';
-import './styles/App.css';
+import { getDefaultBackgroundUrl } from './utils/backgroundImage';
 import './styles/theme.css';
 
 function App() {
   useEffect(() => {
     const img = new Image();
-    img.src = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
+    img.src = getDefaultBackgroundUrl();
   }, []);
 
   return (
@@ -30,7 +30,7 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/clocking" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/teams" element={<ProtectedRoute requireManager><TeamsPage /></ProtectedRoute>} />
+          <Route path="/teams" element={<ProtectedRoute requireManager><Data /></ProtectedRoute>} />
           <Route path="/teams/:id" element={<ProtectedRoute requireManager><TeamDetailsPage /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute requireManager><UsersPage /></ProtectedRoute>} />
           <Route path="/rules" element={<ProtectedRoute requireManager><RulesPage /></ProtectedRoute>} />

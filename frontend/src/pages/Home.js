@@ -1,6 +1,7 @@
 import React from 'react';
 import useClockingStatus from '../hooks/useClockingStatus';
 import useOutletUser from '../hooks/useOutletUser';
+import PageHeader from '../components/PageHeader';
 import { formatHMS } from '../utils/timeFormat';
 import ClockIcon from '../assets/svgs/clock.svg';
 import './Home.css';
@@ -24,14 +25,10 @@ function Home() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">
-            {getGreeting()}, {user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username}!
-          </h1>
-          <p className="dashboard-subtitle">Here's what's happening with your time tracking today.</p>
-        </div>
-      </header>
+      <PageHeader
+        title={`${getGreeting()}, ${user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username}!`}
+        subtitle="Here's what's happening with your time tracking today."
+      />
 
       <div className="dashboard-grid">
         {/* Clock Status Card */}

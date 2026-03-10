@@ -25,6 +25,10 @@ function onRefreshed(newToken) {
   pendingRequests = [];
 }
 
+function redirectToLogin() {
+  if (typeof window !== 'undefined') window.location.href = '/login';
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -35,7 +39,7 @@ api.interceptors.response.use(
       const refreshToken = tokenService.getRefreshToken();
       if (!refreshToken) {
         tokenService.clearTokens();
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        redirectToLogin();
         return Promise.reject(error);
       }
 
@@ -62,7 +66,7 @@ api.interceptors.response.use(
       } catch (refreshErr) {
         isRefreshing = false;
         tokenService.clearTokens();
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        redirectToLogin();
         return Promise.reject(refreshErr);
       }
     }

@@ -28,10 +28,6 @@ const tokenService = {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   },
-
-  isAuthenticated: () => {
-    return !!tokenService.getAccessToken() && !!tokenService.getUser();
-  },
 };
 
 export default tokenService;

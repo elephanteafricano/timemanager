@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import useOutletUser from '../hooks/useOutletUser';
+import PageHeader from '../components/PageHeader';
 import { applyFieldChange } from '../utils/forms';
+import { getApiErrorMessage } from '../utils/apiError';
 import './Profile.css';
 import usersService from '../services/users.service';
 
@@ -58,7 +60,7 @@ function Profile() {
       setIsEditing(false);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -75,9 +77,8 @@ function Profile() {
     try {
       await usersService.deleteUser(user.id);
       logout();
-      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -85,15 +86,15 @@ function Profile() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">My Profile</h1>
-          <p className="dashboard-subtitle">Manage your account information</p>
-        </div>
-        <button onClick={() => navigate('/home')} className="btn-secondary">
-          Back to Home
-        </button>
-      </header>
+      <PageHeader
+        title="My Profile"
+        subtitle="Manage your account information"
+        rightActions={(
+          <button onClick={() => navigate('/home')} className="btn-secondary">
+            Back to Home
+          </button>
+        )}
+      />
 
       <div className="profile-container">
         {error && <div className="alert alert-error">{error}</div>}

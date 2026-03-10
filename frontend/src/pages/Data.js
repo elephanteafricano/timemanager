@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useData from '../hooks/useData';
 import useOutletUser from '../hooks/useOutletUser';
-import { isManagerRole } from '../utils/roles';
 import teamsService from '../services/teams.service';
 import Modal from '../components/Modal';
 import TeamForm from '../components/TeamForm';
 import TeamsSection from '../components/TeamsSection';
+import PageHeader from '../components/PageHeader';
+import InlineState from '../components/InlineState';
+import { getApiErrorMessage } from '../utils/apiError';
 import './Data.css';
 
-function Data({ mode = 'dashboard' }) {
+function Data() {
   const user = useOutletUser();
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamFormLoading, setTeamFormLoading] = useState(false);
@@ -22,27 +24,9 @@ function Data({ mode = 'dashboard' }) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const navigate = useNavigate();
-  const { users, allUsers, teams, reports, kpiData, loading, error } = useData(user, refreshTrigger);
-
-  const confirmAndDelete = async ({ confirmMessage, action, onSuccess }) => {
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
-    try {
-      await action();
-      onSuccess();
-    } catch (err) {
-      setFormError(err.response?.data?.message || err.message);
-    }
-  };
+  const { users, allUsers, teams, loading, error } = useData(refreshTrigger);
 
   const handleCreateTeam = async () => {
-    if (!isManager) {
-      setFormError('Only managers can create or edit teams');
-      return;
-    }
-
     setTeamFormLoading(true);
     setFormError('');
 
@@ -61,109 +45,58 @@ function Data({ mode = 'dashboard' }) {
       setShowTeamModal(false);
       setRefreshTrigger(prev => prev + 1);
     } catch (err) {
-      setFormError(err.response?.data?.message || err.message);
+      setFormError(getApiErrorMessage(err));
     } finally {
       setTeamFormLoading(false);
     }
   };
 
-  const handleDeleteTeam = (teamId) => {
-    if (!isManager) {
-      setFormError('Only managers can delete teams');
+  const handleDeleteTeam = async (teamId) => {
+    if (!window.confirm('Are you sure you want to delete this team?')) {
       return;
     }
 
-    confirmAndDelete({
-      confirmMessage: 'Are you sure you want to delete this team?',
-      action: () => teamsService.deleteTeam(teamId),
-      onSuccess: () => setRefreshTrigger(prev => prev + 1),
-    });
+    try {
+      await teamsService.deleteTeam(teamId);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (err) {
+      setFormError(getApiErrorMessage(err));
+    }
   };
 
-  const isManager = isManagerRole(user);
-
-  const isDashboardView = mode === 'dashboard';
-  const isTeamsView = mode === 'teams';
-
-  const pageTitle = isTeamsView
-      ? 'Teams'
-      : 'Data Dashboard';
-  const pageSubtitle = isTeamsView
-      ? 'Manage teams in your scope.'
-      : 'View and manage your time tracking data.';
-  const reportKpis = kpiData?.userKpis || {};
+  const pageTitle = 'Teams';
+  const pageSubtitle = 'Manage teams in your scope.';
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">{pageTitle}</h1>
-          <p className="dashboard-subtitle">{pageSubtitle}</p>
-        </div>
-        <button onClick={() => navigate('/clocking')} className="btn-secondary">
-          Back to Clocking
-        </button>
-      </header>
+      <PageHeader
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        rightActions={(
+          <button onClick={() => navigate('/clocking')} className="btn-secondary">
+            Back to Clocking
+          </button>
+        )}
+      />
 
-      {loading && <div className="loading">Loading data...</div>}
-      {error && <div className="error">{error}</div>}
       {formError && <div className="error">{formError}</div>}
 
-      {!loading && !error && (
-        <>
-          {isDashboardView && (
-            <section className="data-section">
-              <h2 className="section-title">KPI Report</h2>
-              <div className="table-container tm-card">
-                <table className="employee-table">
-                  <thead>
-                    <tr>
-                      <th>Metric</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Total worked hours</td>
-                      <td>{Number.isFinite(reports?.totalHours) ? `${reports.totalHours}h` : '--'}</td>
-                    </tr>
-                    <tr>
-                      <td>Average worked hours / day</td>
-                      <td>{Number.isFinite(reports?.averageDailyHours) ? `${reports.averageDailyHours}h` : '--'}</td>
-                    </tr>
-                    <tr>
-                      <td>Lateness rate</td>
-                      <td>{Number.isFinite(reportKpis.latenessRate) ? `${reportKpis.latenessRate}%` : '--'}</td>
-                    </tr>
-                    <tr>
-                      <td>Overtime</td>
-                      <td>{Number.isFinite(reportKpis.overtimeHours) ? `${reportKpis.overtimeHours}h` : '--'}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          )}
-
-          {isManager && isTeamsView && (
-            <TeamsSection
-              teams={teams}
-              users={allUsers}
-              isManager={isManager}
-              onViewTeam={(team) => navigate(`/teams/${team.id}`)}
-              onDeleteTeam={handleDeleteTeam}
-              onAddTeam={() => {
-                setTeamFormData({
-                  name: '',
-                  description: '',
-                  userIds: [],
-                });
-                setShowTeamModal(true);
-              }}
-            />
-          )}
-        </>
-      )}
+      <InlineState loading={loading} loadingText="Loading data..." error={error}>
+        <TeamsSection
+          teams={teams}
+          users={allUsers}
+          onViewTeam={(team) => navigate(`/teams/${team.id}`)}
+          onDeleteTeam={handleDeleteTeam}
+          onAddTeam={() => {
+            setTeamFormData({
+              name: '',
+              description: '',
+              userIds: [],
+            });
+            setShowTeamModal(true);
+          }}
+        />
+      </InlineState>
 
       <Modal
         isOpen={showTeamModal}

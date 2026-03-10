@@ -4,6 +4,8 @@ import useTeamDetails from '../hooks/useTeamDetails';
 import TeamMembersTable from '../components/team/TeamMembersTable';
 import AddMemberPicker from '../components/team/AddMemberPicker';
 import EditTeamForm from '../components/team/EditTeamForm';
+import PageHeader from '../components/PageHeader';
+import InlineState from '../components/InlineState';
 import './Home.css';
 import '../styles/ui.css';
 import './TeamDetailsPage.css';
@@ -36,20 +38,17 @@ function TeamDetailsPage() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-greeting">Members - {team?.name || 'Team'}</h1>
-          <p className="dashboard-subtitle">{team?.description || 'No description'}</p>
-        </div>
-        <button onClick={() => navigate('/teams')} className="btn-secondary">
-          Back to teams
-        </button>
-      </header>
+      <PageHeader
+        title={`Members - ${team?.name || 'Team'}`}
+        subtitle={team?.description || 'No description'}
+        rightActions={(
+          <button onClick={() => navigate('/teams')} className="btn-secondary">
+            Back to teams
+          </button>
+        )}
+      />
 
-      {loading && <div className="loading">Loading team...</div>}
-      {error && <div className="error">{error}</div>}
-
-      {!loading && !error && (
+      <InlineState loading={loading} loadingText="Loading team..." error={error}>
         <section className="data-section">
           <TeamMembersTable
             teamName={team?.name}
@@ -83,7 +82,7 @@ function TeamDetailsPage() {
             />
           </section>
         </section>
-      )}
+      </InlineState>
     </>
   );
 }

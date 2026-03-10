@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import { getBackgroundImageStyle, getDefaultBackgroundUrl } from '../utils/backgroundImage';
 import './Login.css';
 
 function Login() {
-  const backgroundUrl = `${process.env.PUBLIC_URL}/images/halftime.jpg`;
+  const backgroundUrl = getDefaultBackgroundUrl();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +25,7 @@ function Login() {
 
   return (
     <div className="login-shell">
-      <aside className="login-brand" style={{ backgroundImage: `url(${backgroundUrl})` }}>
+      <aside className="login-brand" style={getBackgroundImageStyle(backgroundUrl)}>
         <div className="login-brand-content">
           <h1 className="login-brand-title">Where time matters</h1>
           <p className="login-brand-subtitle">Precision. Accountability. Performance.</p>
