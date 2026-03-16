@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/auth.service';
 import tokenService from '../services/tokenService';
+import { getApiErrorMessage } from '../utils/apiError';
 
 function useAuth() {
   const [loading, setLoading] = useState(false);
@@ -15,8 +16,7 @@ function useAuth() {
       tokenService.saveTokens(accessToken, refreshToken, user);
       return { success: true, user };
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed. Please try again.';
-      return { success: false, error: msg };
+      return { success: false, error: getApiErrorMessage(err, 'Login failed. Please try again.') };
     } finally {
       setLoading(false);
     }

@@ -1,13 +1,10 @@
-import React from 'react';
-
 function EditTeamForm({
   teamName,
   setTeamName,
   teamDescription,
   setTeamDescription,
+  isBusy,
   updatingTeam,
-  addingMember,
-  removingMemberId,
   onSubmit,
 }) {
   return (
@@ -30,7 +27,7 @@ function EditTeamForm({
           onChange={(event) => setTeamName(event.target.value)}
           placeholder="Team name"
           required
-          disabled={updatingTeam || addingMember || removingMemberId !== null}
+          disabled={isBusy}
         />
         <textarea
           className="tm-input"
@@ -38,13 +35,13 @@ function EditTeamForm({
           onChange={(event) => setTeamDescription(event.target.value)}
           placeholder="Team description"
           rows={3}
-          disabled={updatingTeam || addingMember || removingMemberId !== null}
+          disabled={isBusy}
         />
         <div className="team-edit-actions">
           <button
             type="submit"
             className="tm-btn tm-btn-primary"
-            disabled={!teamName.trim() || updatingTeam || addingMember || removingMemberId !== null}
+            disabled={!teamName.trim() || isBusy}
           >
             {updatingTeam ? 'Updating...' : 'Update team'}
           </button>

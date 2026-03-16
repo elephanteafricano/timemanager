@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import teamsService from '../services/teams.service';
 import usersService from '../services/users.service';
 import { getApiErrorMessage } from '../utils/apiError';
+import { getArrayData } from '../utils/arrayData';
 
 function useTeamDetails(teamId) {
   const [team, setTeam] = useState(null);
@@ -28,8 +29,8 @@ function useTeamDetails(teamId) {
         teamsService.getTeamById(teamId),
         usersService.getUsers(),
       ]);
-      setTeam(teamResponse?.data || null);
-      setAllUsers(Array.isArray(usersResponse?.data) ? usersResponse.data : []);
+      setTeam(teamResponse.data || null);
+      setAllUsers(getArrayData(usersResponse.data));
     } catch (fetchError) {
       setError(getApiErrorMessage(fetchError, 'Failed to load team'));
     } finally {
@@ -63,7 +64,9 @@ function useTeamDetails(teamId) {
     ));
   }, [allUsers, members]);
 
-  const isPickerDisabled = addingMember || removingMemberId !== null || updatingTeam || eligibleUsers.length === 0;
+  const isMutatingMembers = addingMember || removingMemberId !== null;
+  const isBusy = isMutatingMembers || updatingTeam;
+  const isPickerDisabled = isBusy || eligibleUsers.length === 0;
 
   const removeMember = useCallback(async (memberId) => {
     if (!team?.id || removingMemberId !== null) {
@@ -141,6 +144,8 @@ function useTeamDetails(teamId) {
     removingMemberId,
     addingMember,
     updatingTeam,
+    isMutatingMembers,
+    isBusy,
     selectedUserId,
     setSelectedUserId,
     isUserPickerOpen,

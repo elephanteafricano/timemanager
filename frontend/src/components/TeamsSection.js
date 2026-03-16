@@ -1,8 +1,6 @@
-import React from 'react';
 import TeamIcon from '../assets/svgs/teamsvg.svg';
-import '../styles/ui.css';
 
-function TeamsSection({ teams, users = [], onDeleteTeam, onAddTeam, onViewTeam }) {
+function TeamsSection({ teams, users, onDeleteTeam, onAddTeam, onViewTeam }) {
   const safeTeams = teams.filter((team) => team && team.id);
 
   return (
@@ -67,7 +65,7 @@ function TeamsSection({ teams, users = [], onDeleteTeam, onAddTeam, onViewTeam }
                 <td className="tm-cell-center">{membersCount}</td>
                 <td className="tm-cell-right">
                   <div className="tm-actions-wrap">
-                    <button type="button" className="tm-btn tm-btn-primary" onClick={() => onViewTeam && onViewTeam(team)}>
+                    <button type="button" className="tm-btn tm-btn-primary" onClick={() => onViewTeam(team)}>
                       Members
                     </button>
                     <button type="button" className="tm-btn tm-btn-danger" onClick={() => onDeleteTeam(team.id)}>

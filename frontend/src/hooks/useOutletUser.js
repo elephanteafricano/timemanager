@@ -7,5 +7,5 @@ export default function useOutletUser() {
     throw new Error('useOutletUser must be used under <AppShell />');
   }
 
-  return context?.user || null;
+  return context?.user;
 }

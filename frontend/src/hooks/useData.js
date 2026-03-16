@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import usersService from '../services/users.service';
 import teamsService from '../services/teams.service';
 import { getApiErrorMessage } from '../utils/apiError';
+import { getArrayData } from '../utils/arrayData';
 
 function useData(refreshTrigger = 0) {
   const [users, setUsers] = useState([]);
@@ -17,8 +18,8 @@ function useData(refreshTrigger = 0) {
         setError('');
 
         const [usersRes, teamsRes] = await Promise.all([usersService.getUsers(), teamsService.getTeams()]);
-        const usersData = Array.isArray(usersRes.data) ? usersRes.data : [usersRes.data];
-        const teamsData = Array.isArray(teamsRes.data) ? teamsRes.data : [];
+        const usersData = getArrayData(usersRes.data);
+        const teamsData = getArrayData(teamsRes.data);
         setAllUsers(usersData);
 
         const membersById = new Map();
@@ -42,8 +43,7 @@ function useData(refreshTrigger = 0) {
         setUsers(Array.from(membersById.values()));
         setTeams(teamsData);
       } catch (err) {
-        const msg = getApiErrorMessage(err, 'Failed to load data');
-        setError(msg);
+        setError(getApiErrorMessage(err, 'Failed to load data'));
       } finally {
         setLoading(false);
       }

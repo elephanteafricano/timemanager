@@ -31,3 +31,5 @@ logs/
 
 # Misc
 *.tsbuildinfo
+
+.md

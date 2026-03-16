@@ -19,25 +19,14 @@
   font-weight: 600;
 }
 
-.member-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.member-avatar-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 9999px;
-  object-fit: cover;
-  display: block;
-  flex-shrink: 0;
-}
-
-.member-name-stack {
+.member-name-stack,
+.member-contact-stack {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.member-name-stack {
   min-width: 0;
 }
 
@@ -45,21 +34,13 @@
   font-weight: 600;
 }
 
-.member-subtitle {
+.member-subtitle,
+.tm-dropdown-subtitle {
   color: #6b7280;
   font-size: 12px;
 }
 
-.member-contact-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.member-actions-header {
-  text-align: right;
-}
-
+.member-actions-header,
 .member-actions-cell {
   text-align: right;
 }
@@ -77,11 +58,16 @@
   margin-top: 16px;
 }
 
+.team-add-member-row,
+.team-edit-fields,
+.team-edit-actions {
+  max-width: 720px;
+}
+
 .team-add-member-row {
   display: flex;
   gap: 10px;
   align-items: center;
-  max-width: 720px;
 }
 
 .team-add-member-label {
@@ -169,11 +155,6 @@
   color: #111827;
 }
 
-.tm-dropdown-subtitle {
-  font-size: 12px;
-  color: #6b7280;
-}
-
 .team-add-member-empty {
   margin: 8px 0 0;
   color: #6b7280;
@@ -197,11 +178,9 @@
 .team-edit-fields {
   display: grid;
   gap: 10px;
-  max-width: 720px;
 }
 
 .team-edit-actions {
   display: flex;
   justify-content: flex-end;
-  max-width: 720px;
 }

@@ -4,17 +4,21 @@
   background: #f4f4f6;
 }
 
-.login-brand {
-  order: 2;
-  position: relative;
+.login-brand,
+.login-panel {
   flex: 1;
-  background-size: cover;
-  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
   padding: 48px;
+}
+
+.login-brand {
+  order: 2;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
   overflow: hidden;
 }
 
@@ -25,10 +29,14 @@
   background: rgba(0, 0, 0, 0.6);
 }
 
+.login-brand-content,
+.login-card {
+  max-width: 420px;
+}
+
 .login-brand-content {
   position: relative;
   text-align: center;
-  max-width: 420px;
 }
 
 .login-brand-title {
@@ -46,17 +54,11 @@
 
 .login-panel {
   order: 1;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
   background: #ffffff;
 }
 
 .login-card {
   width: 100%;
-  max-width: 420px;
   background: #ffffff;
   border-radius: 16px;
   padding: 32px;
@@ -80,15 +82,17 @@
   margin-top: 6px;
 }
 
-.login-form {
+.login-form,
+.input-field {
   display: flex;
   flex-direction: column;
+}
+
+.login-form {
   gap: 16px;
 }
 
 .input-field {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 

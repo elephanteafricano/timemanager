@@ -1,4 +1,3 @@
-import React from 'react';
 import { getBackgroundImageStyle } from '../utils/backgroundImage';
 import Sidebar from './Sidebar';
 

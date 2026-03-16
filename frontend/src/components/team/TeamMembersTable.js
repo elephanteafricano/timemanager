@@ -1,7 +1,6 @@
-import React from 'react';
 import { getUserDisplayName } from '../../utils/userDisplay';
 
-function TeamMembersTable({ teamName, members, removingMemberId, addingMember, onRemove }) {
+function TeamMembersTable({ teamName, members, removingMemberId, isMutatingMembers, onRemove }) {
   return (
     <div className="team-members-card tm-card">
       <table className="team-members-table">
@@ -21,8 +20,8 @@ function TeamMembersTable({ teamName, members, removingMemberId, addingMember, o
             return (
               <tr key={member.id}>
                 <td>
-                  <div className="member-name-cell">
-                    <img className="member-avatar-img" src="/images/avatar.png" alt="" />
+                  <div className="tm-person-cell">
+                    <img className="tm-avatar-lg" src="/images/avatar.png" alt="" />
                     <div className="member-name-stack">
                       <div className="member-full-name">{memberDisplayName}</div>
                       <div className="member-subtitle">{memberSubtitle}</div>
@@ -41,7 +40,7 @@ function TeamMembersTable({ teamName, members, removingMemberId, addingMember, o
                     type="button"
                     className="tm-btn tm-btn-danger"
                     onClick={() => onRemove(member.id)}
-                    disabled={removingMemberId !== null || addingMember}
+                    disabled={isMutatingMembers}
                   >
                     {removingMemberId === member.id ? 'Removing...' : 'Remove'}
                   </button>

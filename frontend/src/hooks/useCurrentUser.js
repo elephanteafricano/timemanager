@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import tokenService from '../services/tokenService';
 
 function useCurrentUser() {
-  const [user, setUser] = useState(null);
+  const [user] = useState(() => tokenService.getUser());
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setUser(tokenService.getUser());
     setIsLoading(false);
   }, []);
 

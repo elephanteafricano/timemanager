@@ -1,8 +1,12 @@
-.profile-container {
-  max-width: 600px;
+.profile-container,
+.profile-details {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.profile-container {
+  max-width: 600px;
 }
 
 .alert {
@@ -103,12 +107,6 @@
   color: #7b1fa2;
 }
 
-.profile-details {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .detail-group {
   display: flex;
   justify-content: space-between;
@@ -171,15 +169,10 @@
   box-shadow: 0 0 0 3px rgba(124, 111, 214, 0.1);
 }
 
-.profile-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.btn-edit {
-  background: #7c6fd6;
-  color: white;
+.btn-edit,
+.btn-cancel,
+.btn-save,
+.btn-delete-account {
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -188,49 +181,40 @@
   transition: background 0.2s;
 }
 
-.btn-edit:hover {
-  background: #6859c0;
+.profile-actions,
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .form-actions {
-  display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 16px;
+}
+
+.btn-edit,
+.btn-save {
+  background: #7c6fd6;
+  color: white;
+}
+
+.btn-edit:hover,
+.btn-save:hover:not(:disabled) {
+  background: #6859c0;
 }
 
 .btn-cancel {
   background: #f5f5f5;
   color: #666;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
 }
 
 .btn-cancel:hover:not(:disabled) {
   background: #e0e0e0;
 }
 
-.btn-save {
-  background: #7c6fd6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-save:hover:not(:disabled) {
-  background: #6859c0;
-}
-
 .btn-save:disabled,
-.btn-cancel:disabled {
+.btn-cancel:disabled,
+.btn-delete-account:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -238,23 +222,12 @@
 .btn-delete-account {
   background: #f44336;
   color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
   width: 100%;
   margin-top: 12px;
 }
 
 .btn-delete-account:hover:not(:disabled) {
   background: #d32f2f;
-}
-
-.btn-delete-account:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

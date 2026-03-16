@@ -1,11 +1,11 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import usersService from '../services/users.service';
 import clocksService from '../services/clocks.service';
 import { USER_ROLES } from '../constants/roles';
 import { getApiErrorMessage } from '../utils/apiError';
+import { applyFieldChange } from '../utils/forms';
+import { getArrayData } from '../utils/arrayData';
 import PageHeader from '../components/PageHeader';
-import './Home.css';
-import '../styles/ui.css';
 
 const INITIAL_FORM = {
   first_name: '',
@@ -29,13 +29,13 @@ function UsersPage() {
     setError('');
     try {
       const usersResponse = await usersService.getUsers();
-      const list = Array.isArray(usersResponse.data) ? usersResponse.data : [];
+      const list = getArrayData(usersResponse.data);
 
       const statusEntries = await Promise.all(
         list.map(async (user) => {
           try {
             const clocksResponse = await clocksService.getUserClocks(user.id);
-            const clocks = Array.isArray(clocksResponse.data) ? clocksResponse.data : [];
+            const clocks = getArrayData(clocksResponse.data);
             const latestClock = clocks[clocks.length - 1];
             const isOnline = Boolean(
               latestClock && (latestClock.clock_out === null || latestClock.clock_out === undefined)
@@ -55,8 +55,7 @@ function UsersPage() {
         }))
       );
     } catch (fetchError) {
-      const message = getApiErrorMessage(fetchError, 'Failed to load users');
-      setError(message);
+      setError(getApiErrorMessage(fetchError, 'Failed to load users'));
       setUsers([]);
     } finally {
       setLoadingUsers(false);
@@ -68,7 +67,7 @@ function UsersPage() {
   }, [fetchUsers]);
 
   const handleInputChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, type, checked } = event.target;
     if (type === 'checkbox' && name === 'is_manager') {
       setFormData((prev) => ({
         ...prev,
@@ -77,10 +76,10 @@ function UsersPage() {
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    applyFieldChange({
+      e: event,
+      setData: setFormData,
+    });
   };
 
   const handleCreateUser = async (event) => {
@@ -93,8 +92,7 @@ function UsersPage() {
       setFormData(INITIAL_FORM);
       await fetchUsers();
     } catch (submitError) {
-      const message = getApiErrorMessage(submitError, 'Failed to create user');
-      setError(message);
+      setError(getApiErrorMessage(submitError, 'Failed to create user'));
     } finally {
       setSubmitting(false);
     }
@@ -115,7 +113,7 @@ function UsersPage() {
 
       <div className="tm-split">
         <section className="tm-split-main">
-          <div className="tm-card tm-users-table-card tm-card-scroll tm-card-pad-sm tm-w-full">
+          <div className="tm-card tm-card-scroll tm-card-pad-sm tm-w-full">
             <table className="tm-table tm-table-compact tm-table-top-borders">
               <thead>
                 <tr>
@@ -130,7 +128,7 @@ function UsersPage() {
                 {!loadingUsers && users.map((userRow) => (
                   <tr key={userRow.id}>
                     <td>
-                      <div className="tm-users-name-cell">
+                      <div className="tm-person-cell">
                         <img className="tm-avatar" src="/images/avatar.png" alt="" />
                         <span>{userRow.first_name}</span>
                       </div>

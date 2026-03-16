@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 function useDismissablePopover(ref, isOpen, onClose) {
   useEffect(() => {
     if (!isOpen) {
-      return undefined;
+      return;
     }
 
     const handleOutsideClick = (event) => {

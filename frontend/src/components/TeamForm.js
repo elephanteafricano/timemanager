@@ -1,6 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { applyFieldChange } from '../utils/forms';
+import { getUserDisplayName } from '../utils/userDisplay';
 import './TeamForm.css';
+
+function hasId(item) {
+  return item && item.id;
+}
+
+function getValidIds(items = []) {
+  return items
+    .filter(hasId)
+    .map((item) => item.id);
+}
 
 function TeamForm({ team, users, loading, onChange }) {
   const [formData, setFormData] = useState({
@@ -13,12 +24,8 @@ function TeamForm({ team, users, loading, onChange }) {
   useEffect(() => {
     if (team) {
       // Safely extract user IDs from team members/users, filtering out undefined entries
-      const memberIds = (team.members || [])
-        .filter(m => m && m.id)
-        .map(m => m.id);
-      const userIds = (team.users || [])
-        .filter(u => u && u.id)
-        .map(u => u.id);
+      const memberIds = getValidIds(team.members);
+      const userIds = getValidIds(team.users);
       
       setFormData({
         name: team.name || '',
@@ -52,7 +59,8 @@ function TeamForm({ team, users, loading, onChange }) {
   };
 
   // Filter out invalid users
-  const validUsers = (users || []).filter(u => u && u.id);
+  const validUsers = (users || []).filter(hasId);
+  const employeeUsers = validUsers.filter((u) => u.role === 'employee');
 
   return (
     <div className="team-form">
@@ -83,7 +91,7 @@ function TeamForm({ team, users, loading, onChange }) {
       <div className="form-group">
         <label>Team Members</label>
         <div className="members-list">
-          {validUsers.filter(u => u.role === 'employee').map(u => (
+          {employeeUsers.map(u => (
             <div key={u.id} className="member-item">
               <input
                 type="checkbox"
@@ -92,7 +100,7 @@ function TeamForm({ team, users, loading, onChange }) {
                 onChange={() => handleUserToggle(u.id)}
               />
               <label htmlFor={`member-${u.id}`}>
-                {u.first_name && u.last_name ? `${u.first_name} ${u.last_name}` : u.username}
+                {getUserDisplayName(u)}
               </label>
             </div>
           ))}

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import useDismissablePopover from '../../hooks/useDismissablePopover';
 import { getUserDisplayName, getUserSubtitle } from '../../utils/userDisplay';
 
@@ -9,9 +9,8 @@ function AddMemberPicker({
   isOpen,
   setIsOpen,
   isPickerDisabled,
+  isBusy,
   addingMember,
-  removingMemberId,
-  updatingTeam,
   onAdd,
 }) {
   const pickerRef = useRef(null);
@@ -32,7 +31,7 @@ function AddMemberPicker({
         <div className="tm-dropdown" ref={pickerRef}>
           <button
             type="button"
-            className={`tm-dropdown-trigger ${isOpen ? 'is-open' : ''}`}
+            className="tm-dropdown-trigger"
             onClick={() => setIsOpen((prev) => !prev)}
             disabled={isPickerDisabled}
             aria-haspopup="listbox"
@@ -69,7 +68,7 @@ function AddMemberPicker({
           type="button"
           className="tm-btn tm-btn-primary"
           onClick={onAdd}
-          disabled={!selectedUserId || addingMember || removingMemberId !== null || updatingTeam}
+          disabled={!selectedUserId || isBusy}
         >
           {addingMember ? 'Adding...' : 'Add'}
         </button>

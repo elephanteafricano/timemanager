@@ -41,11 +41,15 @@
   color: #444;
 }
 
-.auth-support-input {
-  border: 1px solid #d1d1d1;
+.auth-support-input,
+.auth-support-button {
   border-radius: 10px;
   padding: 12px 14px;
   font-size: 14px;
+}
+
+.auth-support-input {
+  border: 1px solid #d1d1d1;
 }
 
 .auth-support-input:focus {
@@ -56,9 +60,6 @@
 
 .auth-support-button {
   border: none;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 14px;
   font-weight: 600;
   background: #7c6fd6;
   color: #fff;
@@ -70,20 +71,21 @@
   cursor: not-allowed;
 }
 
-.auth-support-error {
-  background: #ffefef;
-  color: #b23a3a;
+.auth-support-error,
+.auth-support-success {
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
 }
 
+.auth-support-error {
+  background: #ffefef;
+  color: #b23a3a;
+}
+
 .auth-support-success {
   background: #eef8f1;
   color: #2f7c45;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 13px;
 }
 
 .auth-support-links {

@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import useOutletUser from '../hooks/useOutletUser';
 import PageHeader from '../components/PageHeader';
-import '../styles/ui.css';
-import './Home.css';
+import { getUserDisplayName } from '../utils/userDisplay';
 import './Dashboard.css';
 
 const DAY_OPTIONS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TIME_LABELS = ['0h', '4h', '8h', '12h', '16h', '20h', '24h'];
 const PLACEHOLDER_EMPLOYEES = ['Alice Martin', 'Noah Dupont', 'Emma Leroy', 'Lucas Bernard', 'Mia Petit'];
 
-function getUserLabel(user) {
-  if (!user) return 'Current user';
-  const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-  return fullName || user.username || 'Current user';
-}
-
 function Dashboard() {
   const user = useOutletUser();
-
-  const userLabel = getUserLabel(user);
+  const userLabel = user?.first_name || user?.last_name || user?.username
+    ? getUserDisplayName(user)
+    : 'Current user';
   const kpiOptions = user?.role === 'manager' ? ['All employees', ...PLACEHOLDER_EMPLOYEES] : [userLabel];
   const scheduleOptions = user?.role === 'manager' ? PLACEHOLDER_EMPLOYEES : [userLabel];
 

@@ -1,5 +1,3 @@
-import React from 'react';
-
 function RulesPage() {
   return (
     <div style={{ padding: '24px' }}>

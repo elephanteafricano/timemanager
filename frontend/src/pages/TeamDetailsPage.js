@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useTeamDetails from '../hooks/useTeamDetails';
 import TeamMembersTable from '../components/team/TeamMembersTable';
@@ -6,8 +5,6 @@ import AddMemberPicker from '../components/team/AddMemberPicker';
 import EditTeamForm from '../components/team/EditTeamForm';
 import PageHeader from '../components/PageHeader';
 import InlineState from '../components/InlineState';
-import './Home.css';
-import '../styles/ui.css';
 import './TeamDetailsPage.css';
 
 function TeamDetailsPage() {
@@ -22,6 +19,8 @@ function TeamDetailsPage() {
     removingMemberId,
     addingMember,
     updatingTeam,
+    isMutatingMembers,
+    isBusy,
     selectedUserId,
     setSelectedUserId,
     isUserPickerOpen,
@@ -54,7 +53,7 @@ function TeamDetailsPage() {
             teamName={team?.name}
             members={members}
             removingMemberId={removingMemberId}
-            addingMember={addingMember}
+            isMutatingMembers={isMutatingMembers}
             onRemove={removeMember}
           />
           <section className="team-actions-card tm-card">
@@ -65,9 +64,8 @@ function TeamDetailsPage() {
               isOpen={isUserPickerOpen}
               setIsOpen={setIsUserPickerOpen}
               isPickerDisabled={isPickerDisabled}
+              isBusy={isBusy}
               addingMember={addingMember}
-              removingMemberId={removingMemberId}
-              updatingTeam={updatingTeam}
               onAdd={addMember}
             />
             <EditTeamForm
@@ -75,9 +73,8 @@ function TeamDetailsPage() {
               setTeamName={setTeamName}
               teamDescription={teamDescription}
               setTeamDescription={setTeamDescription}
+              isBusy={isBusy}
               updatingTeam={updatingTeam}
-              addingMember={addingMember}
-              removingMemberId={removingMemberId}
               onSubmit={updateTeam}
             />
           </section>

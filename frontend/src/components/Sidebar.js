@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { isManagerRole } from '../utils/roles';
 import './Sidebar.css';
@@ -48,17 +47,9 @@ function Sidebar({ user, onLogout }) {
         {user && (
           <div className="sidebar-user">
             <img
-              className="sidebar-avatar"
+              className="tm-avatar-lg"
               src="/images/avatar.png"
               alt=""
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '9999px',
-                objectFit: 'cover',
-                display: 'block',
-                flexShrink: 0,
-              }}
             />
             <div className="user-info">
               <div className="user-name">{user.username}</div>

@@ -11,8 +11,7 @@ export async function runAsyncAction({ setLoading, setError, action, onSuccess }
     }
     return result;
   } catch (err) {
-    const message = getApiErrorMessage(err);
-    setError(message);
+    setError(getApiErrorMessage(err));
     return null;
   } finally {
     setLoading(false);

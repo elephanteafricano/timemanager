@@ -1,7 +1,6 @@
-import React from 'react';
 import './Modal.css';
 
-function Modal({ isOpen, title, onClose, onSubmit, children, hideSubmitButton = false }) {
+function Modal({ isOpen, title, onClose, onSubmit, children }) {
   if (!isOpen) return null;
 
   return (
@@ -14,12 +13,10 @@ function Modal({ isOpen, title, onClose, onSubmit, children, hideSubmitButton = 
         <div className="modal-body">
           {children}
         </div>
-        {!hideSubmitButton && (
-          <div className="modal-footer">
-            <button className="modal-btn cancel" onClick={onClose}>Cancel</button>
-            <button className="modal-btn submit" onClick={() => onSubmit()}>Submit</button>
-          </div>
-        )}
+        <div className="modal-footer">
+          <button className="modal-btn cancel" onClick={onClose}>Cancel</button>
+          <button className="modal-btn submit" onClick={onSubmit}>Submit</button>
+        </div>
       </div>
     </div>
   );

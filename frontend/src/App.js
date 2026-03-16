@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AppShell from './components/AppShell';
 import { getDefaultBackgroundUrl } from './utils/backgroundImage';
 import './styles/theme.css';
+import './styles/ui.css';
 
 function App() {
   useEffect(() => {

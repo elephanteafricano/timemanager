@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useData from '../hooks/useData';
 import useOutletUser from '../hooks/useOutletUser';
@@ -9,17 +9,18 @@ import TeamsSection from '../components/TeamsSection';
 import PageHeader from '../components/PageHeader';
 import InlineState from '../components/InlineState';
 import { getApiErrorMessage } from '../utils/apiError';
-import './Data.css';
+
+const INITIAL_TEAM_FORM = {
+  name: '',
+  description: '',
+  userIds: [],
+};
 
 function Data() {
   const user = useOutletUser();
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamFormLoading, setTeamFormLoading] = useState(false);
-  const [teamFormData, setTeamFormData] = useState({
-    name: '',
-    description: '',
-    userIds: [],
-  });
+  const [teamFormData, setTeamFormData] = useState(INITIAL_TEAM_FORM);
   const [formError, setFormError] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -88,11 +89,7 @@ function Data() {
           onViewTeam={(team) => navigate(`/teams/${team.id}`)}
           onDeleteTeam={handleDeleteTeam}
           onAddTeam={() => {
-            setTeamFormData({
-              name: '',
-              description: '',
-              userIds: [],
-            });
+            setTeamFormData(INITIAL_TEAM_FORM);
             setShowTeamModal(true);
           }}
         />

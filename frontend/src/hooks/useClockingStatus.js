@@ -1,6 +1,28 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import clocksService from '../services/clocks.service';
 import { getApiErrorMessage } from '../utils/apiError';
+import { getArrayData } from '../utils/arrayData';
+
+function findActiveOpenClock(clocks) {
+  return clocks.reduce((latest, clock) => {
+    if (!clock || clock.clock_out) return latest;
+    const clockInDate = new Date(clock.clock_in);
+    if (Number.isNaN(clockInDate.getTime())) return latest;
+    if (!latest) return clock;
+    const latestIn = new Date(latest.clock_in);
+    return clockInDate > latestIn ? clock : latest;
+  }, null);
+}
+
+function getElapsedSeconds(startTime, now = new Date()) {
+  const elapsed = Math.floor((now - startTime) / 1000);
+  return Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0;
+}
+
+function getValidClockInDate(value) {
+  const clockInDate = new Date(value);
+  return Number.isNaN(clockInDate.getTime()) ? null : clockInDate;
+}
 
 function useClockingStatus(userId) {
   const [isClockedIn, setIsClockedIn] = useState(false);
@@ -15,17 +37,6 @@ function useClockingStatus(userId) {
     setElapsedTime(0);
   }, []);
 
-  const activeOpenClock = useMemo(() => {
-    return (clocks) => clocks.reduce((latest, clock) => {
-      if (!clock || clock.clock_out) return latest;
-      const clockInDate = new Date(clock.clock_in);
-      if (Number.isNaN(clockInDate.getTime())) return latest;
-      if (!latest) return clock;
-      const latestIn = new Date(latest.clock_in);
-      return clockInDate > latestIn ? clock : latest;
-    }, null);
-  }, []);
-
   useEffect(() => {
     if (!userId) {
       resetClockState();
@@ -35,23 +46,21 @@ function useClockingStatus(userId) {
     const fetchClockStatus = async () => {
       try {
         const response = await clocksService.getUserClocks(userId);
-        const clocks = Array.isArray(response.data) ? response.data : (Array.isArray(response) ? response : []);
+        const clocks = getArrayData(response.data);
 
-        if (!Array.isArray(clocks) || clocks.length === 0) {
+        if (clocks.length === 0) {
           resetClockState();
           return;
         }
 
-        const activeClock = activeOpenClock(clocks);
+        const activeClock = findActiveOpenClock(clocks);
 
         if (activeClock && activeClock.clock_in) {
-          const openClockIn = new Date(activeClock.clock_in);
-          if (!Number.isNaN(openClockIn.getTime())) {
+          const openClockIn = getValidClockInDate(activeClock.clock_in);
+          if (openClockIn) {
             setIsClockedIn(true);
             setClockInTime(openClockIn);
-            const now = new Date();
-            const elapsed = Math.floor((now - openClockIn) / 1000);
-            setElapsedTime(elapsed > 0 ? elapsed : 0);
+            setElapsedTime(getElapsedSeconds(openClockIn));
           } else {
             resetClockState();
           }
@@ -65,17 +74,15 @@ function useClockingStatus(userId) {
     };
 
     fetchClockStatus();
-  }, [userId, activeOpenClock, resetClockState]);
+  }, [userId, resetClockState]);
 
   useEffect(() => {
     if (!isClockedIn || !clockInTime) {
-      return undefined;
+      return;
     }
 
     const interval = setInterval(() => {
-      const now = new Date();
-      const elapsed = Math.floor((now - clockInTime) / 1000);
-      setElapsedTime(Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0);
+      setElapsedTime(getElapsedSeconds(clockInTime));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -92,38 +99,37 @@ function useClockingStatus(userId) {
 
     try {
       const response = await clocksService.toggleClock({ user_id: userId });
-      const clockRecord = response?.data || response;
+      const clockRecord = response?.data;
 
-      if (clockRecord) {
-        const clockInValue = clockRecord.clock_in;
-        const clockOutValue = clockRecord.clock_out;
-        const hasOpenClock = !!clockInValue && !clockOutValue;
-        setIsClockedIn(hasOpenClock);
+      if (!clockRecord) {
+        resetClockState();
+        return;
+      }
 
-        if (hasOpenClock) {
-          const openClockIn = new Date(clockInValue);
-          if (!Number.isNaN(openClockIn.getTime())) {
-            setClockInTime(openClockIn);
-            const now = new Date();
-            const elapsed = Math.floor((now - openClockIn) / 1000);
-            setElapsedTime(Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0);
-          } else {
-            // Keep open status but show invalid elapsed as "--:--:--" via formatter.
-            setClockInTime(null);
-            setElapsedTime(Number.NaN);
-          }
+      const clockInValue = clockRecord.clock_in;
+      const clockOutValue = clockRecord.clock_out;
+      const hasOpenClock = !!clockInValue && !clockOutValue;
+      setIsClockedIn(hasOpenClock);
+
+      if (hasOpenClock) {
+        const openClockIn = getValidClockInDate(clockInValue);
+        if (openClockIn) {
+          setClockInTime(openClockIn);
+          setElapsedTime(getElapsedSeconds(openClockIn));
         } else {
+          // Keep open status but show invalid elapsed as "--:--:--" via formatter.
           setClockInTime(null);
-          setElapsedTime(0);
+          setElapsedTime(Number.NaN);
         }
+      } else {
+        resetClockState();
       }
     } catch (err) {
-      const message = getApiErrorMessage(err, 'Failed to toggle clock');
-      setClockError(message);
+      setClockError(getApiErrorMessage(err, 'Failed to toggle clock'));
     } finally {
       setClockLoading(false);
     }
-  }, [userId]);
+  }, [userId, resetClockState]);
 
   return {
     isClockedIn,
