@@ -105,11 +105,7 @@ function UsersPage() {
         subtitle="Manage all users and create manager or employee accounts."
       />
 
-      {error && (
-        <div style={{ marginBottom: '16px', color: '#b42318' }}>
-          {error}
-        </div>
-      )}
+      {error && <div className="error tm-page-error">{error}</div>}
 
       <div className="tm-split">
         <section className="tm-split-main">
@@ -159,59 +155,99 @@ function UsersPage() {
         </section>
 
         <section className="tm-split-side">
-          <div className="tm-card tm-users-side-card tm-card-pad-md tm-w-full">
-            <h2 className="tm-users-form-title">Create user</h2>
-            <form onSubmit={handleCreateUser} className="tm-users-form">
-              <input
-                className="tm-input"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleInputChange}
-                placeholder="First name"
-                required
-              />
-              <input
-                className="tm-input"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleInputChange}
-                placeholder="Last name"
-                required
-              />
-              <input
-                className="tm-input"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleInputChange}
-                placeholder="Phone number"
-              />
-              <input
-                className="tm-input"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Email"
-                required
-              />
-              <input
-                className="tm-input"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Username"
-                required
-              />
-              <input
-                className="tm-input"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Password"
-                required
-              />
-              <label className="tm-users-manager-label">
+          <div className="tm-card tm-card-pad-md tm-w-full tm-form-card">
+            <div className="tm-form-header">
+              <h2 className="tm-form-title">Create user</h2>
+              <p className="tm-form-subtitle">Create manager or employee accounts.</p>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="tm-form">
+              <div className="tm-form-grid-2">
+                <div className="tm-form-field">
+                  <label htmlFor="user-first-name">First name</label>
+                  <input
+                    id="user-first-name"
+                    className="tm-input"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    placeholder="First name"
+                    required
+                  />
+                </div>
+
+                <div className="tm-form-field">
+                  <label htmlFor="user-last-name">Last name</label>
+                  <input
+                    id="user-last-name"
+                    className="tm-input"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    placeholder="Last name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="tm-form-grid-2">
+                <div className="tm-form-field">
+                  <label htmlFor="user-phone-number">Phone number</label>
+                  <input
+                    id="user-phone-number"
+                    className="tm-input"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
+                    placeholder="Phone number"
+                  />
+                </div>
+
+                <div className="tm-form-field">
+                  <label htmlFor="user-email">Email</label>
+                  <input
+                    id="user-email"
+                    className="tm-input"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="tm-form-grid-2">
+                <div className="tm-form-field">
+                  <label htmlFor="user-username">Username</label>
+                  <input
+                    id="user-username"
+                    className="tm-input"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    placeholder="Username"
+                    required
+                  />
+                </div>
+
+                <div className="tm-form-field">
+                  <label htmlFor="user-password">Password</label>
+                  <input
+                    id="user-password"
+                    className="tm-input"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="Password"
+                    required
+                  />
+                </div>
+              </div>
+
+              <label className="tm-form-check">
                 <input
                   type="checkbox"
                   name="is_manager"
@@ -220,7 +256,8 @@ function UsersPage() {
                 />
                 Manager
               </label>
-              <div className="tm-users-submit-row">
+
+              <div className="tm-form-actions">
                 <button type="submit" className="tm-btn tm-btn-primary" disabled={submitting}>
                   {submitting ? 'Creating...' : 'Create user'}
                 </button>
